@@ -1,24 +1,37 @@
 import os
 import sys
+from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from signin import SignInWindow
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
+from_class = uic.loadUiType(f"{current_dir}/main.ui")[0] 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(from_class): 
     def setupUi(self, MainWindow):
+        super().setupUi(MainWindow)
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 600)
-        
+        _translate = QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("main", "main"))
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         MainWindow.setCentralWidget(self.centralwidget)
-        
-        self.centralwidget.setStyleSheet("background-color: white;") # 배경색 설정
+        MainWindow.setAutoFillBackground(True)
+
+        palette = MainWindow.palette()
+        palette.setColor(QPalette.Window, QColor("white"))
+        MainWindow.setPalette(palette)
+
+
+        MainWindow.setMouseTracking(True) 
+        self.MainWindow = MainWindow
 
         logo_image_path = os.path.join(current_dir, "img", "Druid.png")
         pixmap = QPixmap(logo_image_path)
@@ -30,26 +43,44 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.label.setPixmap(pixmap)
 
-        # 반응형 레이아웃 설정
-        layout = QVBoxLayout(self.centralwidget)
+        layout = QVBoxLayout(self.centralwidget)  # 중앙 정렬을 위한 QVBoxLayout 사용
         layout.addWidget(self.label)
         layout.setAlignment(self.label, Qt.AlignCenter)
-
         self.centralwidget.setLayout(layout)
 
+        # 메뉴바와 상태바 생성 및 스타일 설정
         self.menubar = QMenuBar(MainWindow)
-        self.menubar.setGeometry(QRect(0, 0, 528, 24))
+        self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        
+
         self.statusbar = QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
         QMetaObject.connectSlotsByName(MainWindow)
-      
-    def retranslateUi(self, MainWindow):
-          _translate = QCoreApplication.translate
-          MainWindow.setWindowTitle(_translate("main", "main"))
+
+        MainWindow.setStyleSheet("""
+        background-color: white;
+        border-radius: 10px;
+
+        QMenuBar { background-color: white; border: none; }
+        QStatusBar { background-color: white; border: none; }
+        """)
+
+    def show_signin_window(self):
+        self.signin_window = SignInWindow()
+        self.signin_window.show()
+        self.MainWindow.close() 
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MainWindow() 
+        self.ui.setupUi(self) 
+
+    def mousePressEvent(self, event):  # 클릭 시 show_signin_window 호출
+        if event.button() == Qt.LeftButton:
+            self.ui.show_signin_window()  
 
 if __name__ == "__main__":
     try:
@@ -61,8 +92,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    MainWindow = MainWindow() 
+    MainWindow.show()  
     sys.exit(app.exec_())
