@@ -1,19 +1,18 @@
+import os
+import time
 import serial
 import mysql.connector
-import time
 from dotenv import load_dotenv
-import os
 
+# 🔹 아두이노 시리얼 포트 설정 (리눅스는 '/dev/ttyACM0', 윈도우는 'COMx')
+arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+time.sleep(2)  # 시리얼 연결 안정화 대기
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_USER = os.getenv("DB_USER")
 DB_PSWD = os.getenv("DB_PSWD")
-
-# 🔹 아두이노 시리얼 포트 설정 (리눅스는 '/dev/ttyACM0', 윈도우는 'COMx')
-arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-time.sleep(2)  # 시리얼 연결 안정화 대기
 
 # 🔹 MySQL 데이터베이스 연결
 db = mysql.connector.connect(
