@@ -31,15 +31,18 @@ try:
     while True:
         if arduino.in_waiting > 0:
             line = arduino.readline().decode('utf-8').strip()  # 아두이노 데이터 읽기
-            if line.startswith("Moisture Sensor Value: "):
-                moisture_value = int(line.split(": ")[1])  # 값 추출
-                print(f"받은 값: {moisture_value}")
+            
+            soil_moisture_value = int(line.split(",")[0])  # 값 추출
+            air_moisture_value = int(line.split(",")[1])
+            air_temperature_value = int(line.split(",")[2])
 
-                # MySQL에 데이터 저장
-                sql = "INSERT INTO soil_test (test_gap) VALUES (%s)"
-                cursor.execute(sql, (moisture_value,))
-                db.commit()
-                print("✅ 데이터베이스에 저장 완료!")
+            print(f"받은 값: {soil_moisture_value, air_moisture_value, air_temperature_value}")
+
+            # MySQL에 데이터 저장
+            sql = "INSERT INTO soil_test (test_gap) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (soil_moisture_value, air_moisture_value, air_temperature_value))
+            db.commit()
+            print("✅ 데이터베이스에 저장 완료!")
 
         time.sleep(1)  # 1초 대기
 
