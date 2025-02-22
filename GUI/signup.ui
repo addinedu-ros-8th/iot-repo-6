@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="usernameLabel">
+  <widget class="QLabel" name="passwordLabel">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -26,7 +26,7 @@
     <string>Password</string>
    </property>
   </widget>
-  <widget class="QLabel" name="passwordLabel">
+  <widget class="QLabel" name="confirmPasswordLabel">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -39,7 +39,7 @@
     <string>Confirm password</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="usernameTedit">
+  <widget class="QTextEdit" name="passwordTedit">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -49,7 +49,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="signupTedit">
+  <widget class="QTextEdit" name="confirmPasswordTedit">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -59,7 +59,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="signinButton">
+  <widget class="QPushButton" name="signUpButton">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -72,7 +72,7 @@
     <string>Sign up</string>
    </property>
   </widget>
-  <widget class="QLabel" name="usernameLabel_2">
+  <widget class="QLabel" name="firstNameLabel">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -85,7 +85,7 @@
     <string>First name</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="usernameTedit_2">
+  <widget class="QTextEdit" name="firstNameTedit">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -95,7 +95,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="usernameLabel_3">
+  <widget class="QLabel" name="usernameLabel">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -108,7 +108,7 @@
     <string>Username</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="usernameTedit_3">
+  <widget class="QTextEdit" name="userNameTedit">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -118,7 +118,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QTextEdit" name="usernameTedit_4">
+  <widget class="QTextEdit" name="lastNameTedit">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -128,7 +128,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="usernameLabel_4">
+  <widget class="QLabel" name="lastNameLabel">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -141,7 +141,7 @@
     <string>Last name</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="usernameTedit_5">
+  <widget class="QTextEdit" name="phoneNumberTedit">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -151,7 +151,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="usernameLabel_5">
+  <widget class="QLabel" name="phoneNumberLabel">
    <property name="geometry">
     <rect>
      <x>150</x>

@@ -4,7 +4,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from signin import SignInWindow
+from signIn import SignInWindow
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
@@ -12,7 +12,7 @@ from backend.database.database_manager import DB
 current_dir = os.path.dirname(os.path.realpath(__file__))
 from_class = uic.loadUiType(f"{current_dir}/main.ui")[0] 
 
-class Ui_MainWindow(from_class): 
+class Ui_MainWindow(QMainWindow, from_class): 
     def setupUi(self, MainWindow):
         super().setupUi(MainWindow)
 
@@ -28,7 +28,6 @@ class Ui_MainWindow(from_class):
         palette = MainWindow.palette()
         palette.setColor(QPalette.Window, QColor("white"))
         MainWindow.setPalette(palette)
-
 
         MainWindow.setMouseTracking(True) 
         self.MainWindow = MainWindow
