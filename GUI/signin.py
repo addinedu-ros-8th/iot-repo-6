@@ -1,10 +1,13 @@
+import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 from signUp import signUpWindow
 from userRegister import userRegisterWindow
 
-form_class = uic.loadUiType("signin.ui")[0]
+current_dir = os.path.dirname(os.path.realpath(__file__))
+os.chdir(current_dir)
+form_class = uic.loadUiType("signIn.ui")[0]
 
 class SignInWindow(QMainWindow, form_class):
     def __init__(self):
