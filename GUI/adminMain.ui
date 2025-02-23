@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="kitinfoButton">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -26,7 +26,7 @@
     <string>Kit info</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="plantinfoButton">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -39,7 +39,7 @@
     <string>Plant info</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="userinfoButton">
    <property name="geometry">
     <rect>
      <x>30</x>

@@ -62,6 +62,19 @@
     <string>Exit</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="detailButton">
+   <property name="geometry">
+    <rect>
+     <x>480</x>
+     <y>470</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Detail</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
