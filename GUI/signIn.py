@@ -30,4 +30,3 @@ class SignInWindow(QMainWindow, form_class):
         print("Sign up")
         self.main_window = signUpWindow()
         self.main_window.show()
-        

@@ -6,14 +6,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from signIn import SignInWindow
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))     # 현재 스크립트의 부모 디렉터리를 sys.path에 추가
 from backend.database.database_manager import DB
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-from_class = uic.loadUiType(f"{current_dir}/main.ui")[0] 
+current_dir = os.path.dirname(os.path.realpath(__file__))   # 현재 파일이 위치한 디렉터리의 절대 경로
+from_class = uic.loadUiType(f"{current_dir}/main.ui")[0]    
 
 class Ui_MainWindow(QMainWindow, from_class): 
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow):  
         super().setupUi(MainWindow)
 
         MainWindow.setObjectName("MainWindow")
