@@ -5,7 +5,7 @@ import mysql.connector
 from dotenv import load_dotenv
 
 # 아두이노 시리얼 포트 설정
-arduino = serial.Serial('/dev/cu.usbmodem2101', 9600, timeout=1)
+arduino = serial.Serial('/dev/ttyACM0 (Arduino Uno)', 9600, timeout=1)
 time.sleep(2)  # 연결 안정화 대기
 
 # 환경 변수 로드
