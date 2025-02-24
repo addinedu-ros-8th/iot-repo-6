@@ -1,10 +1,16 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
+from backend.database.database_manager import DB
 
 form_class = uic.loadUiType("userKitRental.ui")[0]
 
 class kitRentWindow(QMainWindow, form_class):
+
+    db = DB(db_name="iot")
+    db.connect()
+    db.set_cursor_buffered_true()
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
