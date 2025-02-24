@@ -1,30 +1,31 @@
-#define SOIL_MOISTURE A0  // Soil moisture sensor pin
-#define WATER_PUMP 5      // Pump pin
+#define SOIL_MOISTURE A0  // 토양 수분 센서 핀
+#define WATER_PUMP 5      // 펌프 제어 핀
 
-// Soil moisture thresholds for turning the pump on/off
-#define MOISTURE_THRESHOLD_LOW 300  // Below this, water the plants
-#define MOISTURE_THRESHOLD_HIGH 700 // Above this, stop watering
+#define MOISTURE_THRESHOLD_LOW 300   // 이 값 미만이면 펌프 ON
+#define MOISTURE_THRESHOLD_HIGH 700  // 이 값 초과이면 펌프 OFF
 
 void waterPumpSetup() {
     pinMode(WATER_PUMP, OUTPUT);
-    digitalWrite(WATER_PUMP, LOW);  // Pump is off initially
+    digitalWrite(WATER_PUMP, LOW);  // 초기에는 펌프 OFF
 }
 
-void waterPumpLoop() {
-    int soilMoisture = analogRead(SOIL_MOISTURE);  // Read soil moisture
-    Serial.print("Soil Moisture: ");
-    Serial.println(soilMoisture);  // Output moisture level
+int readSoilMoisture() {
+    return analogRead(SOIL_MOISTURE);
+}
 
-    if (soilMoisture < MOISTURE_THRESHOLD_LOW) {
-        // If soil moisture is too low, turn on the pump
+String getPumpState() {
+    int soilMoisture = readSoilMoisture();
+    String pump_status;
+    if (soilMoisture == 0) {
+        pump_status = "error";
+    } else if (soilMoisture < MOISTURE_THRESHOLD_LOW) {
         digitalWrite(WATER_PUMP, HIGH);
-        Serial.println("WATER_PUMP ON");
-    } 
-    else if (soilMoisture > MOISTURE_THRESHOLD_HIGH) {
-        // If soil moisture is sufficiently high, turn off the pump
+        pump_status = "ON";
+    } else if (soilMoisture > MOISTURE_THRESHOLD_HIGH) {
         digitalWrite(WATER_PUMP, LOW);
-        Serial.println("WATER_PUMP OFF");
+        pump_status = "OFF";
+    } else {
+        pump_status = "NO_CHANGE";
     }
-
-    delay(1000);  // Wait for 1 second before next reading
+    return pump_status;
 }

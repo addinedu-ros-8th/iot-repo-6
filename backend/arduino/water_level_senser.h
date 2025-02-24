@@ -1,21 +1,16 @@
-#define WATER_LEVEL A1
+#ifndef WATER_LEVEL_SENSER_H
+#define WATER_LEVEL_SENSER_H
+
+#define WATER_LEVEL A2  // 물 높이 센서 핀 (다른 센서와 충돌 방지)
 
 void waterLevelSensorSetup() {
+  // 별도의 초기화가 필요하지 않음.
 }
 
-void waterLevelSensorLoop() {
+int readWaterLevel() {
   int sensorValue = analogRead(WATER_LEVEL);
-  float waterLevel = map(sensorValue, 0, 1023, 0, 100);  // Mapping the sensor value to 0-100% range
-
-  // Print water level as a percentage
-  Serial.print("Water Level: ");
-  Serial.print(waterLevel);
-  Serial.println("%");
-
-  // Example threshold for low water level warning
-  if (waterLevel < 20) {
-    Serial.println("Warning: Low Water Level!");
-  }
-
-  delay(1000);  // Delay before reading the sensor again
+  int waterLevel = map(sensorValue, 0, 1023, 0, 100);
+  return waterLevel;
 }
+
+#endif // WATER_LEVEL_SENSER_H

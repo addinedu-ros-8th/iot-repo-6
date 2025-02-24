@@ -1,16 +1,17 @@
+#ifndef SERVO_PIN
+#define SERVO_PIN 6
+#endif
+
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Servo.h>
 
-#define SS_PIN 10  
-#define RST_PIN 9    
-#define SERVO_PIN 6  
+bool isRegisteredUID(String receivedUID);
 
-extern MFRC522 rfid; // 중복 선언 방지
-Servo myServo;
+extern MFRC522 rfid; // RFID 객체는 RFID_read.h에서 정의
+extern Servo myServo;  // 메인 파일에서 정의됨
 
-byte registeredUID[4] = {0x76, 0x89, 0xCE, 0x01};  
-
+byte registeredUID[4] = {0x76, 0x89, 0xCE, 0x01};
 bool servoPosition = false;
 
 void rfidTagServoSetup() {
@@ -19,19 +20,20 @@ void rfidTagServoSetup() {
     Serial.println("RFID Servo Initialized");
 }
 
-void rfidTagServoLoop() {
+String rfidTagServoLoop() {
     if (Serial.available() > 0) {
         String receivedUID = Serial.readStringUntil('\n');
-        receivedUID.trim();  
+        receivedUID.trim();
 
         if (isRegisteredUID(receivedUID)) {
-            Serial.println("Active door");
             myServo.write(servoPosition ? 0 : 90);
             servoPosition = !servoPosition;
+            return "{\"rfid_status\":\"Active door\", \"servo_angle\":" + String(myServo.read()) + "}";
         } else {
-            Serial.println("Not registered card");
+            return "{\"error\":\"Not registered card\"}";
         }
     }
+    return "{}";
 }
 
 bool isRegisteredUID(String receivedUID) {
