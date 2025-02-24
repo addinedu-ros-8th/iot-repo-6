@@ -39,13 +39,13 @@
     <string>Select</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox">
+  <widget class="QComboBox" name="typeCombo">
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>80</y>
+     <y>90</y>
      <width>171</width>
-     <height>41</height>
+     <height>31</height>
     </rect>
    </property>
   </widget>

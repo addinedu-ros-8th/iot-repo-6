@@ -41,8 +41,9 @@ class SignInWindow(QMainWindow, form_class):
 
         elif result and result[0][0] > 0:
             print("User login success")
+            user_id = result[0][0]
             self.close()
-            self.main_window = userRegisterWindow()
+            self.main_window = userRegisterWindow(user_id)
             self.main_window.show()
             
         else:
