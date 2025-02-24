@@ -1,10 +1,13 @@
 import os
+import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 from signUp import signUpWindow
 from userRegister import userRegisterWindow
 from adminMain import adminMainWindow
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))     # 현재 스크립트의 부모 디렉터리를 sys.path에 추가
+from backend.database.database_manager import DB
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 os.chdir(current_dir)
@@ -23,17 +26,27 @@ class SignInWindow(QMainWindow, form_class):
     def userMain(self):
         username = self.usernameTedit.toPlainText().strip()
         password = self.passwordTedit.toPlainText().strip()
+    
+        db = DB(db_name="iot")
+        db.connect()
+        db.set_cursor_buffered_true()
+        db.execute("SELECT COUNT(*) FROM user WHERE user_id = %s AND user_password = %s", (username, password))
+        result = db.fetchall()
 
-        if username == "admin" and password == "1234":
+        if result and result[0][0] > 0:
+            print("User login success")
+            self.close()
+            self.main_window = userRegisterWindow()
+            self.main_window.show()
+
+        elif username == "admin" and password == "1234":
             print("Admin login success")
             self.close()
             self.main_window = adminMainWindow()
+            self.main_window.show()
         else:
-            print("User login success")
-            self.main_window = userRegisterWindow()
-
-        self.main_window.show()
-    
+            QMessageBox.warning(self, "로그인 오류", "아이디 또는 비밀번호가 틀렸습니다.")
+            
     def signUp(self):
         print("Sign up")
         self.main_window = signUpWindow()

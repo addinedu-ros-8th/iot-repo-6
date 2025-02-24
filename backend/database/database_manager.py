@@ -132,3 +132,9 @@ class DB:
         if self.db:
             self.execute(f"DELETE FROM {table_name} WHERE {condition}")
             self.commit()
+    def fetchone(self):
+        if self.db:
+            return self.cursor.fetchone()
+        else:
+            print("Database not connected")
+            return None
