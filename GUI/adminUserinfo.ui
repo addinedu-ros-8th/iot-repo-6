@@ -36,12 +36,12 @@
     <string>User info</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="backButton">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>390</x>
      <y>470</y>
-     <width>112</width>
+     <width>101</width>
      <height>32</height>
     </rect>
    </property>
@@ -49,12 +49,12 @@
     <string>Back</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="exitButton">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>510</x>
      <y>470</y>
-     <width>112</width>
+     <width>101</width>
      <height>32</height>
     </rect>
    </property>
@@ -65,14 +65,14 @@
   <widget class="QPushButton" name="detailButton">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>274</x>
      <y>470</y>
-     <width>101</width>
+     <width>90</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Modify</string>
    </property>
   </widget>
  </widget>

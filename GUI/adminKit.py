@@ -12,7 +12,15 @@ class adminKitWindow(QMainWindow, form_class):
         self.setWindowTitle("admin Kit")
 
         self.exitButton.clicked.connect(self.exitShow)
+        self.backButton.clicked.connect(self.backShow)
+
 
     def exitShow(self):
         print("exit show")
         self.close()
+
+    def backShow(self):
+        from adminMain import adminMainWindow  
+        self.close()
+        self.main_window = adminMainWindow()
+        self.main_window.show()

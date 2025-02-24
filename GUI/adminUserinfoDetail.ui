@@ -144,7 +144,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Apply</string>
    </property>
   </widget>
  </widget>

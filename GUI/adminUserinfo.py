@@ -13,9 +13,21 @@ class adminUserinfoWindow(QMainWindow, form_class):
         self.setWindowTitle("admin User info")
 
         self.detailButton.clicked.connect(self.detailShow)
-    
+        self.exitButton.clicked.connect(self.exitShow)
+        self.backButton.clicked.connect(self.backShow)
+
     def detailShow(self):
         print("detail show")
         self.close()
         self.main_window = adminUserinfoDetailWindow()
         self.main_window.show()
+
+
+    def backShow(self):
+        from adminMain import adminMainWindow  
+        self.close()
+        self.main_window = adminMainWindow()
+        self.main_window.show()
+
+    def exitShow(self):
+        self.close()

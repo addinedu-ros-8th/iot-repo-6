@@ -33,17 +33,18 @@ class SignInWindow(QMainWindow, form_class):
         db.execute("SELECT COUNT(*) FROM user WHERE user_id = %s AND user_password = %s", (username, password))
         result = db.fetchall()
 
-        if result and result[0][0] > 0:
-            print("User login success")
-            self.close()
-            self.main_window = userRegisterWindow()
-            self.main_window.show()
-
-        elif username == "admin" and password == "1234":
+        if username == "admin" and password == "1234":
             print("Admin login success")
             self.close()
             self.main_window = adminMainWindow()
             self.main_window.show()
+
+        elif result and result[0][0] > 0:
+            print("User login success")
+            self.close()
+            self.main_window = userRegisterWindow()
+            self.main_window.show()
+            
         else:
             QMessageBox.warning(self, "로그인 오류", "아이디 또는 비밀번호가 틀렸습니다.")
             

@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
-from adminPlantDetail import adminPlantDetailWindow
 
 form_class = uic.loadUiType("adminPlant.ui")[0]
 
@@ -12,10 +11,14 @@ class adminPlantWindow(QMainWindow, form_class):
 
         self.setWindowTitle("admin Plant")
 
-        self.detailButton.clicked.connect(self.detailShow)
-    
-    def detailShow(self):
-        print("detail show")
+        self.backButton.clicked.connect(self.backShow)
+        self.exitButton.clicked.connect(self.exitShow)
+
+    def exitShow(self):
         self.close()
-        self.main_window = adminPlantDetailWindow()
+
+    def backShow(self):
+        from adminMain import adminMainWindow  
+        self.close()
+        self.main_window = adminMainWindow()
         self.main_window.show()
