@@ -1,7 +1,6 @@
 #define WATER_LEVEL A1
 
 void waterLevelSensorSetup() {
-    Serial.begin(9600);
 }
 
 void waterLevelSensorLoop() {

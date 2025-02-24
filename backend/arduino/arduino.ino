@@ -1,10 +1,10 @@
-#include "RFID_TAG_servomotor.ino"
-#include "RFID_tag_read.ino"
-#include "atmosphere_temp_hum_sensor.ino"
-#include "light_control_sensor.ino"
-#include "stepper_motor_with_camera.ino"
-#include "water_level_senser.ino"
-#include "water_pump_with_plants_table.ino"
+#include "RFID_TAG_servomotor.h"
+#include "RFID_tag_read.h"
+#include "atmosphere_temp_hum_sensor.h"
+#include "light_control_sensor.h"
+#include "stepper_motor_with_camera.h"
+#include "water_level_senser.h"
+#include "water_pump_with_plants_table.h"
 
 void setup() {
     Serial.begin(9600);
@@ -25,17 +25,6 @@ void loop() {
     stepperMotorLoop();
     waterLevelSensorLoop();
     waterPumpLoop();
-}
 
-void rfidTagServoSetup();
-void rfidTagServoLoop();
-void atmosphereTempHumSetup();
-void atmosphereTempHumLoop();
-void lightControlSetup();
-void lightControlLoop();
-void stepperMotorSetup();
-void stepperMotorLoop();
-void waterLevelSensorSetup();
-void waterLevelSensorLoop();
-void waterPumpSetup();
-void waterPumpLoop();
+    delay(30000);
+}

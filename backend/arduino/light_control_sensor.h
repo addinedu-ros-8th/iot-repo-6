@@ -1,14 +1,15 @@
 #include <Servo.h>
+#ifndef SERVO_PIN
+#define SERVO_PIN 6
+#endif
 
 const int LED_PIN = 7;
-const int SERVO_PIN = 6; // Servo 핀을 별도로 설정
 Servo myServo;
 static int lastAngle = 0;  // 초기값을 0으로 설정
 
 void lightControlSetup() {
   myServo.attach(SERVO_PIN);  // Servo 핀을 별도로 연결
   pinMode(LED_PIN, OUTPUT);
-  Serial.begin(9600);
 }
 
 void moveServo(int targetAngle) {

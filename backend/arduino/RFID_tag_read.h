@@ -7,7 +7,6 @@
 MFRC522 rfid(SS_PIN, RST_PIN); // 한 곳에서만 선언
 
 void rfidTagReadSetup() {
-    Serial.begin(9600);
     SPI.begin();
     rfid.PCD_Init();
     Serial.println("RFID Reader Initialized");

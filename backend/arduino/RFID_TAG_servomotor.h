@@ -1,16 +1,17 @@
+#ifndef SERVO_PIN
+#define SERVO_PIN 6
+#endif
+
 #include <SPI.h>
 #include <MFRC522.h>
 #include <Servo.h>
 
-#define SS_PIN 10  
-#define RST_PIN 9    
-#define SERVO_PIN 6  
+bool isRegisteredUID(String receivedUID);
 
 extern MFRC522 rfid; // 중복 선언 방지
-Servo myServo;
+extern Servo myServo;  // 다른 파일에서 정의되도록 함
 
 byte registeredUID[4] = {0x76, 0x89, 0xCE, 0x01};  
-
 bool servoPosition = false;
 
 void rfidTagServoSetup() {

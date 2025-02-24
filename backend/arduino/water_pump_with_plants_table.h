@@ -6,7 +6,6 @@
 #define MOISTURE_THRESHOLD_HIGH 700 // Above this, stop watering
 
 void waterPumpSetup() {
-    Serial.begin(9600);
     pinMode(WATER_PUMP, OUTPUT);
     digitalWrite(WATER_PUMP, LOW);  // Pump is off initially
 }

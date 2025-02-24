@@ -8,13 +8,12 @@ Stepper myStepper(stepsPerRevolution, 1, 2, 3, 4); // IN1, IN3, IN2, IN4
 int currentFlag = 1;  // 현재 flag 값 (1~4)
 int currentAngle = 0; // 현재 각도 (0~360)
 
-void atmosphereTempHumSetup() {
+void stepperMotorSetup() {
   myStepper.setSpeed(10); // 속도 설정 (RPM)
-  Serial.begin(9600); // 시리얼 모니터 시작
   Serial.println("flag 값을 입력하세요 (1~4):");
 }
 
-void atmosphereTempHumLoop() {
+void stepperMotorLoop() {
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');  // Enter를 기준으로 입력 받기
     input.trim(); // 공백 제거
