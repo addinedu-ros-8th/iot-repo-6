@@ -3,13 +3,13 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
-from userPlantDetail import plantInfoWindow
+from userPlantDetail import userPlantDetailWindow
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
 
-form_class = uic.loadUiType("userKitRentalDetail.ui")[0]
+form_class = uic.loadUiType("userPlantRegist.ui")[0]
 
-class userKitRentalDetailWindow(QMainWindow, form_class):
+class userPlantRegistWindow(QMainWindow, form_class):
 
     def __init__(self,user_num):
         super().__init__()
@@ -54,20 +54,35 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
             plant_id = plant_id_result[0]  # 실제 plant_id 값
             print(f"변환된 plant_id: {plant_id}")
 
-            # rental_kit 테이블에 데이터 삽입
-            insert_query = """
-                INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date) 
-                VALUES (%s, %s, %s, %s)
-            """
-            self.db.execute(insert_query, (self.user_num, selected_plant_nickname, plant_id, selected_planting_date))
+            check_query = "SELECT COUNT(*) FROM rental_kit WHERE user_id = %s"
+            self.db.execute(check_query, (self.user_num,))
+            user_exists = self.db.fetchone()[0] > 0  # 존재 여부 확인
+
+            if user_exists:
+                # 기존 행 업데이트
+                update_query = """
+                    UPDATE rental_kit
+                    SET plant_nickname = %s, plant_id = %s, planting_date = %s
+                    WHERE user_id = %s
+                """
+                self.db.execute(update_query, (selected_plant_nickname, plant_id, selected_planting_date, self.user_num))
+                QMessageBox.information(self, "성공", "식물 대여 정보가 업데이트되었습니다.")
+            else:
+                # 새 행 삽입
+                insert_query = """
+                    INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date) 
+                    VALUES (%s, %s, %s, %s)
+                """
+                self.db.execute(insert_query, (self.user_num, selected_plant_nickname, plant_id, selected_planting_date))
+                QMessageBox.information(self, "성공", "식물 대여 정보가 저장되었습니다.")
+
             self.db.commit()
-            QMessageBox.information(self, "성공", "식물 대여 정보가 저장되었습니다.")
 
         except Exception as e:
             QMessageBox.critical(self, "오류", f"식물 선택 실패: {str(e)}")
 
         self.close()
-        self.main_window = plantInfoWindow(self.user_num)
+        self.main_window = userPlantDetailWindow(self.user_num)
         self.main_window.show()
 
     def load_plant_names(self):

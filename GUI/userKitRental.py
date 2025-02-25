@@ -126,21 +126,24 @@ class kitRentWindow(QMainWindow, form_class):
 
         check_query = "SELECT * FROM rental_kit WHERE farm_kit_id = %s AND rental_kit_status_id = %s"
         
-        query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id,rental_startdate) VALUES (%s, %s, %s, %s)"
+        insert_query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id, rental_startdate) VALUES (%s, %s, %s, %s)"
+        update_query = "UPDATE rental_kit SET rental_kit_status_id = %s, rental_startdate = %s WHERE rental_kit_id = %s"
         
         kit_count = 4
         for kit_id in range(1, kit_count + 1):
-            selected_kit = selected_kits[kit_id - 1]
-
-            if selected_kit:
-                self.db.cursor.execute(check_query, (kit_id, unavailable_status))
+            if selected_kits[kit_id - 1]:
+                self.db.cursor.execute(check_query, (self.user_num, kit_id))
                 existing_rental = self.db.cursor.fetchone()
 
-                if existing_rental:
-                    QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 다른 사용자가 대여했습니다.")
-                    getattr(self, f'checkBox_{kit_id}').setChecked(False)  
-                else:
-                    self.db.cursor.execute(query, (self.user_num, kit_id, unavailable_status, rent_startdate))
+                if existing_rental: 
+                    rental_kit_id, plant_id = existing_rental
+                    if plant_id is None: 
+                        self.db.cursor.execute(update_query, (unavailable_status, rent_startdate, rental_kit_id))
+                        self.db.commit()
+                    else:
+                        QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 대여된 상태입니다.")
+                else:  # 기존에 없으면 새로 삽입
+                    self.db.cursor.execute(insert_query, (self.user_num, kit_id, unavailable_status, rent_startdate))
                     self.db.commit()
 
         print("데이터가 삽입되었습니다.")

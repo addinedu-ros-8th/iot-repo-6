@@ -6,27 +6,31 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
+# from userRegister import userRegisterWindow
 # from userKitRentalDetail import userRegisterWindow
 
 form_class = uic.loadUiType("userPlantDetail.ui")[0]
 
-class plantInfoWindow(QMainWindow, form_class):
+class userPlantDetailWindow(QMainWindow, form_class):
     def __init__(self,user_num):
         super().__init__()
         self.setupUi(self)
 
         self.user_num = user_num
 
+        self.db = DB(db_name="iot")
+        self.db.connect()
+        self.db.set_cursor_buffered_true()
+
         self.get_farm_num()
         self.get_plant_name()
         self.get_planting_days()
         self.update_air_temperature()
-        
-
-
-        self.db = DB(db_name="iot")
-        self.db.connect()
-        self.db.set_cursor_buffered_true()
+        self.update_air_moisture()
+        self.update_soil_moisture()
+        self.update_light_intensity()
+        self.update_plant_type()
+        self.update_rental_startdate()
 
         self.setWindowTitle("user plant Detial")
         self.closeButton.clicked.connect(self.closeClicked)
@@ -49,10 +53,11 @@ class plantInfoWindow(QMainWindow, form_class):
 
     def get_plant_name(self):
         sql = """select plant_nickname
-                 from rental_kit"""
+                 from rental_kit
+                 WHERE user_id = %s"""
         self.db.cursor.execute(sql, (self.user_num,))
         plant_nickname = self.db.cursor.fetchone()
-        self.label2.setText(f"식물 닉네임: {plant_nickname[0]}")
+        self.label_2.setText(f"식물 닉네임: {plant_nickname[0]}")
 
     def get_planting_days(self):
         sql = """SELECT r.planting_date
@@ -61,22 +66,87 @@ class plantInfoWindow(QMainWindow, form_class):
         
         self.db.cursor.execute(sql, (self.user_num,))
         planting_date = self.db.cursor.fetchone()
-        planting_date = datetime.strptime(planting_date[0], '%Y-%m-%d')
+
+        planting_date = planting_date[0]
         current_date = datetime.now()
         days_since_planting = (current_date - planting_date).days
-        self.label8.setText(f"--{days_since_planting}일째!")
+        self.label_8.setText(f"--{days_since_planting}일째!")
 
     def update_air_temperature(self):
         query = """SELECT ki.air_temperature
-                FROM rental_kit rk
-                JOIN kit_info ki ON rk.rental_kit_id = ki.rental_kit_id
-                WHERE rk.rental_kit_id = %s"""
+               FROM rental_kit rk
+               JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
+               WHERE rk.user_id = %s
+               ORDER BY ki.kit_info_id DESC
+               LIMIT 1"""
         
         self.db.cursor.execute(query, (self.user_num,))
         air_temperature = self.db.cursor.fetchone()
 
-        self.label3.setText(f"공기 온도: {air_temperature[0]}°C")
 
+        self.label_3.setText(f"공기 온도: {air_temperature[0]}°C")
+
+
+    def update_air_moisture(self):
+        query = """SELECT ki.air_moisture
+                FROM rental_kit rk
+                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
+                WHERE rk.user_id = %s
+                ORDER BY ki.kit_info_id DESC
+                LIMIT 1"""
+        
+        self.db.cursor.execute(query, (self.user_num,))
+        air_moisture = self.db.cursor.fetchone()
+
+        self.label_4.setText(f"공기 습도: {air_moisture[0]}%")
+
+    def update_soil_moisture(self):
+        query = """SELECT ki.soil_moisture
+                FROM rental_kit rk
+                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
+                WHERE rk.user_id = %s
+                ORDER BY ki.kit_info_id DESC
+                LIMIT 1"""
+        
+        self.db.cursor.execute(query, (self.user_num,))
+        soil_moisture = self.db.cursor.fetchone()
+
+        self.label_9.setText(f"흙 습도: {soil_moisture[0]}%")
+
+
+    def update_light_intensity(self):
+        query = """SELECT ki.light_intensity
+                FROM rental_kit rk
+                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
+                WHERE rk.user_id = %s
+                ORDER BY ki.kit_info_id DESC
+                LIMIT 1"""
+        
+        self.db.cursor.execute(query, (self.user_num,))
+        light_intensity = self.db.cursor.fetchone()
+
+        self.label_3.setText(f"광도: {light_intensity[0]}cd")
+
+    def update_plant_type(self):
+        query = """SELECT p.plant_name 
+                FROM rental_kit r
+                JOIN plant p ON r.plant_id = p.plant_id
+                WHERE r.user_id = %s"""
+        
+        self.db.cursor.execute(query, (self.user_num,))
+        plant_name = self.db.cursor.fetchone()
+
+        self.label_6.setText(f"식물 종류: {plant_name[0]}")
+
+    def update_rental_startdate(self):
+        query = """SELECT rental_startdate 
+                FROM rental_kit 
+                WHERE rental_kit_id = %s"""
+
+        self.db.cursor.execute(query, (self.user_num,))
+        rental_startdate = self.db.cursor.fetchone()
+
+        self.label_7.setText(f"시작일: {rental_startdate[0]}")
 
     def closeClicked(self):
         sys.exit()

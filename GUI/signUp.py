@@ -55,6 +55,13 @@ class signUpWindow(QMainWindow, form_class):
                 VALUES (%s, %s, %s, %s)
             """, (Username, Password, Phone_number, full_name))
             db.commit()
+            
+            db.execute("""
+                INSERT INTO rental_kit (user_id)
+                VALUES (%s)
+            """, (Username,))
+            db.commit()
+
             QMessageBox.information(self, "회원가입 성공", "회원가입이 완료되었습니다!")
             self.close()
         except Exception as e:
