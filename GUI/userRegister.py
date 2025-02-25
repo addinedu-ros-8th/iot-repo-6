@@ -18,6 +18,7 @@ class userRegisterWindow(QMainWindow, form_class):
 
         self.user_num = user_num
 
+        self.userName.setText(str(self.user_num))
         self.kitRentButton.clicked.connect(self.kitRentShow)
         self.plantInfoButton.clicked.connect(self.plantInfoShow)
     

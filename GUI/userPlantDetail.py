@@ -16,6 +16,8 @@ class plantInfoWindow(QMainWindow, form_class):
 
         self.user_num = user_num
 
+        self.userName.setText(str(self.user_num))
+
         self.db = DB(db_name="iot")
         self.db.connect()
         self.db.set_cursor_buffered_true()
