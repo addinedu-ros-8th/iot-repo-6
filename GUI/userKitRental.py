@@ -20,6 +20,7 @@ class kitRentWindow(QMainWindow, form_class):
 
         self.kitRentButton.clicked.connect(self.save_rental_kit)
         self.okBtn.clicked.connect(self.kitRentShow)
+        self.okBtn.clicked.connect(self.update_labels) 
 
         
         self.update_labels()
@@ -52,10 +53,9 @@ class kitRentWindow(QMainWindow, form_class):
             LEFT JOIN 
                 plant p ON r.plant_id = p.plant_id
             LEFT JOIN 
-                rental_kit_status rks ON r.rental_kit_status_id = rks.rental_kit_status_id
-                WHERE r.user_id = %s;"""
+                rental_kit_status rks ON r.rental_kit_status_id = rks.rental_kit_status_id;"""
         
-        self.db.cursor.execute(query, (self.user_num,))
+        self.db.cursor.execute(query)
         results = self.db.cursor.fetchall()
 
         labels = [self.num_1, self.num_2, self.num_3, self.num_4] 
@@ -67,7 +67,7 @@ class kitRentWindow(QMainWindow, form_class):
             (
                 farm_kit_id, farm_num, user_id, user_num, plant_id, plant_name, 
                 rental_startdate, planting_date, rental_kit_status
-            ) = row  # 🚀 9개 변수로 언패킹!
+            ) = row  
 
             labels[i].setText(
                 f"농장 키트 ID: {farm_kit_id}\n"
@@ -142,4 +142,4 @@ class kitRentWindow(QMainWindow, form_class):
         print("데이터가 삽입되었습니다.")
 
         # 삽입 후 레이블 및 체크박스 상태 업데이트
-        self.update_labels()
+        # self.update_labels()
