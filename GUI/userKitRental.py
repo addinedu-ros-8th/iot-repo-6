@@ -33,12 +33,27 @@ class kitRentWindow(QMainWindow, form_class):
         self.main_window.show()
 
     def update_labels(self):
-        query = """SELECT r.rental_kit_status_id, f.farm_kit_id, u.user_id 
-                FROM rental_kit r 
-                JOIN farm_kit f ON r.farm_kit_id = f.farm_kit_id 
-                JOIN user u ON r.user_id = u.user_id 
-                WHERE r.user_id = %s
-                ORDER BY r.rental_kit_status_id DESC"""
+        query = """SELECT 
+                r.farm_kit_id, 
+                f.farm_num, 
+                r.user_id, 
+                u.user_num, 
+                r.plant_id, 
+                p.plant_name, 
+                r.rental_startdate, 
+                r.planting_date, 
+                rks.rental_kit_status
+            FROM 
+                rental_kit r
+            LEFT JOIN 
+                farm_kit f ON r.farm_kit_id = f.farm_kit_id
+            LEFT JOIN 
+                user u ON r.user_id = u.user_num
+            LEFT JOIN 
+                plant p ON r.plant_id = p.plant_id
+            LEFT JOIN 
+                rental_kit_status rks ON r.rental_kit_status_id = rks.rental_kit_status_id
+                WHERE r.user_id = %s;"""
         
         self.db.cursor.execute(query, (self.user_num,))
         results = self.db.cursor.fetchall()
@@ -49,8 +64,20 @@ class kitRentWindow(QMainWindow, form_class):
         rented_kit_ids = [row[1] for row in results]
 
         for i, row in enumerate(results):
-            rental_kit_status_id, farm_kit_id, user_id = row
-            labels[i].setText(f"Status ID: {rental_kit_status_id}\nFarm Kit ID: {farm_kit_id}\nUser ID: {user_id}")
+            (
+                farm_kit_id, farm_num, user_id, user_num, plant_id, plant_name, 
+                rental_startdate, planting_date, rental_kit_status
+            ) = row  # 🚀 9개 변수로 언패킹!
+
+            labels[i].setText(
+                f"농장 키트 ID: {farm_kit_id}\n"
+                f"농장 번호: {farm_num}\n"
+                f"사용자 ID: {user_id}\n"
+                f"식물 이름: {plant_name}\n"
+                f"대여 시작: {rental_startdate}\n"
+                f"식재 날짜: {planting_date}\n"
+                f"상태: {rental_kit_status}"
+            )
             checkboxes[i].setEnabled(False)
 
         for j in range(len(results), 4):
