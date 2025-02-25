@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>721</width>
-    <height>661</height>
+    <height>694</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,13 +19,13 @@
      <x>20</x>
      <y>60</y>
      <width>671</width>
-     <height>521</height>
+     <height>581</height>
     </rect>
    </property>
    <property name="title">
     <string>Kit rental form</string>
    </property>
-   <widget class="QCheckBox" name="checkBox">
+   <widget class="QCheckBox" name="checkBox_1">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -41,7 +41,7 @@
    <widget class="QCheckBox" name="checkBox_2">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>350</x>
       <y>30</y>
       <width>85</width>
       <height>20</height>
@@ -67,7 +67,7 @@
    <widget class="QCheckBox" name="checkBox_4">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>350</x>
       <y>300</y>
       <width>85</width>
       <height>20</height>
@@ -77,18 +77,83 @@
      <string>#4</string>
     </property>
    </widget>
+   <widget class="QLabel" name="num_1">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>60</y>
+      <width>271</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="num_2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>60</y>
+      <width>271</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="num_3">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>330</y>
+      <width>271</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="num_4">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>330</y>
+      <width>271</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="kitRentButton">
    <property name="geometry">
     <rect>
-     <x>580</x>
-     <y>590</y>
+     <x>450</x>
+     <y>650</y>
      <width>112</width>
      <height>32</height>
     </rect>
    </property>
    <property name="text">
     <string>apply</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="okBtn">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>650</y>
+     <width>112</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ok</string>
    </property>
   </widget>
  </widget>

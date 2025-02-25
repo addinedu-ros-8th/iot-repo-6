@@ -8,10 +8,6 @@ form_class = uic.loadUiType("userKitRentalDetail.ui")[0]
 
 class userKitRentalDetailWindow(QMainWindow, form_class):
 
-    db = DB(db_name="iot")
-    db.connect()
-    db.set_cursor_buffered_true()
-
     def __init__(self,user_id):
         super().__init__()
         self.setupUi(self)
@@ -19,6 +15,10 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
         self.setWindowTitle("Kit Rental Detail")
 
         self.user_id = user_id
+
+        db = DB(db_name="iot")
+        db.connect()
+        db.set_cursor_buffered_true()
 
         self.load_plant_names()
 
