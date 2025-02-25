@@ -23,9 +23,6 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
         self.load_plant_names()
 
         self.selectButton.clicked.connect(self.kitRentShow)
-
-    
-
     
     def kitRentShow(self):
         print("Kit rent detail")
