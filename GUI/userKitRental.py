@@ -18,6 +18,7 @@ class kitRentWindow(QMainWindow, form_class):
         self.db.connect()
         self.db.set_cursor_buffered_true()
 
+
         self.kitRentButton.clicked.connect(self.save_rental_kit)
         self.okBtn.clicked.connect(self.kitRentShow)
         self.okBtn.clicked.connect(self.update_labels) 
@@ -84,7 +85,6 @@ class kitRentWindow(QMainWindow, form_class):
             labels[j].setText("대여 키트 정보 없음")
             checkboxes[j].setEnabled(True)
 
-        # rented_kit_ids 확인
         print(f"rented_kit_ids: {rented_kit_ids}")
 
         if 1 in rented_kit_ids:
@@ -99,6 +99,11 @@ class kitRentWindow(QMainWindow, form_class):
 
 
     def save_rental_kit(self):
+
+        if not self.dateEdit.date().isValid():
+            QMessageBox.warning(self, "경고", "날짜를 선택하세요")
+            return
+        
         selected_kits = [
             self.checkBox_1.isChecked(),
             self.checkBox_2.isChecked(),
@@ -106,22 +111,22 @@ class kitRentWindow(QMainWindow, form_class):
             self.checkBox_4.isChecked()
         ]
 
-        # 'available' 및 'unavailable' 상태 가져오기
         query_status = "SELECT rental_kit_status_id FROM rental_kit_status WHERE rental_kit_status = %s"
         self.db.cursor.execute(query_status, ('available',))
-        available_status = self.db.cursor.fetchone()  # fetchone() 호출
+        available_status = self.db.cursor.fetchone()  
         if available_status:
             available_status = available_status[0]  
 
         self.db.cursor.execute(query_status, ('unavailable',))
-        unavailable_status = self.db.cursor.fetchone()  # fetchone() 호출
+        unavailable_status = self.db.cursor.fetchone() 
         if unavailable_status:
             unavailable_status = unavailable_status[0]
-        # 중복된 대여를 방지하는 쿼리
+
+        rent_startdate = self.dateEdit.date().toString("yyyy-MM-dd")
+
         check_query = "SELECT * FROM rental_kit WHERE farm_kit_id = %s AND rental_kit_status_id = %s"
         
-        # 대여 키트 상태 저장 쿼리
-        query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id) VALUES (%s, %s, %s)"
+        query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id,rental_startdate) VALUES (%s, %s, %s, %s)"
         
         kit_count = 4
         for kit_id in range(1, kit_count + 1):
@@ -129,17 +134,13 @@ class kitRentWindow(QMainWindow, form_class):
 
             if selected_kit:
                 self.db.cursor.execute(check_query, (kit_id, unavailable_status))
-                existing_rental = self.db.cursor.fetchone()  # fetchone() 호출!
+                existing_rental = self.db.cursor.fetchone()
 
                 if existing_rental:
                     QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 다른 사용자가 대여했습니다.")
                     getattr(self, f'checkBox_{kit_id}').setChecked(False)  
                 else:
-                    self.db.cursor.execute(query, (self.user_num, kit_id, unavailable_status))
+                    self.db.cursor.execute(query, (self.user_num, kit_id, unavailable_status, rent_startdate))
                     self.db.commit()
 
-                self.db.commit()  # DB에 저장
         print("데이터가 삽입되었습니다.")
-
-        # 삽입 후 레이블 및 체크박스 상태 업데이트
-        # self.update_labels()

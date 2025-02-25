@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>721</width>
-    <height>694</height>
+    <width>718</width>
+    <height>718</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>60</y>
+     <y>80</y>
      <width>671</width>
      <height>581</height>
     </rect>
@@ -133,8 +133,8 @@
   <widget class="QPushButton" name="kitRentButton">
    <property name="geometry">
     <rect>
-     <x>450</x>
-     <y>650</y>
+     <x>440</x>
+     <y>670</y>
      <width>112</width>
      <height>32</height>
     </rect>
@@ -147,13 +147,39 @@
    <property name="geometry">
     <rect>
      <x>580</x>
-     <y>650</y>
+     <y>670</y>
      <width>112</width>
      <height>32</height>
     </rect>
    </property>
    <property name="text">
     <string>Ok</string>
+   </property>
+  </widget>
+  <widget class="QDateEdit" name="dateEdit">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>30</y>
+     <width>110</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="calendarPopup">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>30</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Rent Startdate</string>
    </property>
   </widget>
  </widget>
