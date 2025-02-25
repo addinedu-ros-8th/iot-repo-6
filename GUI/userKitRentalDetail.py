@@ -12,11 +12,13 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
     db.connect()
     db.set_cursor_buffered_true()
 
-    def __init__(self):
+    def __init__(self,user_id):
         super().__init__()
         self.setupUi(self)
 
         self.setWindowTitle("Kit Rental Detail")
+
+        self.user_id = user_id
 
         self.load_plant_names()
 
@@ -32,8 +34,9 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
         self.main_window.show()
 
     def load_plant_names(self):
-        query = "SELECT plant_name FROM plant;" 
-        result = self.db.fetch_all(query)  
+        query = "SELECT plant_name FROM plant;"
+        self.db.execute(query)
+        result = self.db.fetchall()  
         
         self.typeCombo.clear()
         for row in result:

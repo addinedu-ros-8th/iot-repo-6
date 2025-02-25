@@ -7,16 +7,16 @@ form_class = uic.loadUiType("userKitRental.ui")[0]
 
 class kitRentWindow(QMainWindow, form_class):
 
-    db = DB(db_name="iot")
-    db.connect()
-    db.set_cursor_buffered_true()
-
     def __init__(self, user_id):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle("Kit Rental")
-
+        
         self.user_id = user_id
+
+        db = DB(db_name="iot")
+        db.connect()
+        db.set_cursor_buffered_true()
 
         self.kitRentButton.clicked.connect(self.kitRentShow)
         
@@ -38,18 +38,18 @@ class kitRentWindow(QMainWindow, form_class):
         JOIN farm_kit f ON r.farm_kit_id = f.farm_kit_id
         JOIN user u ON r.user_id = u.user_id
         ORDER BY r.rental_kit_status_id DESC
-        LIMIT 4;
         """
         
-        self.db.cursor.execute(query)
-        result = self.db.cursor.fetchone()
+        self.db.cursor.execute(query, (self.user_id,))
+        results = self.db.cursor.fetchall()
 
-        if result :
-            rental_kit_status_id, farm_kit_id, user_id = result
+        labels = [self.num_1, self.num_2, self.num_3, self.num_4]
 
-            self.num_1.setText(str(rental_kit_status_id))
-            self.num_2.setText(str(farm_kit_id))           
-            self.num_3.setText(str(user_id))      
-        else :        
-            print("데이터 없음")
+        for i, row in enumerate(results):
+            rental_kit_status_id, farm_kit_id, user_id = row
+            labels[i].setText(f"Status ID: {rental_kit_status_id}\nFarm Kit ID: {farm_kit_id}\nUser ID: {user_id}")
+
+        for j in range(len(results), 4):
+            labels[j].setText("대여 키트 정보 없음")
+
 
