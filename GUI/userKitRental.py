@@ -23,6 +23,10 @@ class kitRentWindow(QMainWindow, form_class):
         self.okBtn.clicked.connect(self.kitRentShow)
         self.okBtn.clicked.connect(self.update_labels) 
 
+        self.checkBox_1.stateChanged.connect(self.checkBoxStateChanged)
+        self.checkBox_2.stateChanged.connect(self.checkBoxStateChanged)
+        self.checkBox_3.stateChanged.connect(self.checkBoxStateChanged)
+        self.checkBox_4.stateChanged.connect(self.checkBoxStateChanged)
         
         self.update_labels()
 
@@ -33,6 +37,20 @@ class kitRentWindow(QMainWindow, form_class):
         from userRegister import userRegisterWindow 
         self.main_window = userRegisterWindow(self.user_num)
         self.main_window.show()
+
+    def checkBoxStateChanged(self):
+        checkboxes = [self.checkBox_1, self.checkBox_2, self.checkBox_3, self.checkBox_4]
+        selected_checkbox = self.sender()
+
+        for checkbox in checkboxes:
+            if checkbox != selected_checkbox:
+                checkbox.setEnabled(False)
+            else:
+                checkbox.setEnabled(True)
+
+        if not any([checkbox.isChecked() for checkbox in checkboxes]):
+            for checkbox in checkboxes:
+                checkbox.setEnabled(True)
 
     def update_labels(self):
         query = """SELECT 
@@ -125,7 +143,6 @@ class kitRentWindow(QMainWindow, form_class):
         rent_startdate = self.dateEdit.date().toString("yyyy-MM-dd")
 
         check_query = "SELECT * FROM rental_kit WHERE farm_kit_id = %s AND rental_kit_status_id = %s"
-        
         insert_query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id, rental_startdate) VALUES (%s, %s, %s, %s)"
         update_query = "UPDATE rental_kit SET rental_kit_status_id = %s, rental_startdate = %s WHERE rental_kit_id = %s"
         
@@ -135,15 +152,17 @@ class kitRentWindow(QMainWindow, form_class):
                 self.db.cursor.execute(check_query, (self.user_num, kit_id))
                 existing_rental = self.db.cursor.fetchone()
 
-                if existing_rental: 
-                    rental_kit_id, plant_id = existing_rental
-                    if plant_id is None: 
-                        self.db.cursor.execute(update_query, (unavailable_status, rent_startdate, rental_kit_id))
+                if existing_rental:
+                    rental_kit_id, _, rental_status, _ = existing_rental
+                    if rental_status == available_status:
+                        self.db.cursor.execute(update_query, (rent_startdate, self.user_num, kit_id))
                         self.db.commit()
+                        print(f"키트 {kit_id}의 대여 시작 날짜가 수정되었습니다.")
                     else:
                         QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 대여된 상태입니다.")
-                else:  # 기존에 없으면 새로 삽입
+                else: 
                     self.db.cursor.execute(insert_query, (self.user_num, kit_id, unavailable_status, rent_startdate))
                     self.db.commit()
+                    print(f"키트 {kit_id}가 새로 등록되었습니다.")
 
         print("데이터가 삽입되었습니다.")

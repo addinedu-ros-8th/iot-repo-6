@@ -42,7 +42,7 @@ class userPlantRegistWindow(QMainWindow, form_class):
             print(f"선택된 plant_name: {selected_plant_name}")
             print(f"선택된 planting_date: {selected_planting_date}")
 
-            # 선택된 식물 이름을 plant_id로 변환
+
             query = "SELECT plant_id FROM plant WHERE plant_name = %s"
             self.db.execute(query, (selected_plant_name,))
             plant_id_result = self.db.fetchone()
@@ -51,7 +51,7 @@ class userPlantRegistWindow(QMainWindow, form_class):
                 QMessageBox.warning(self, "오류", "선택한 식물이 존재하지 않습니다.")
                 return
 
-            plant_id = plant_id_result[0]  # 실제 plant_id 값
+            plant_id = plant_id_result[0]
             print(f"변환된 plant_id: {plant_id}")
 
             check_query = "SELECT COUNT(*) FROM rental_kit WHERE user_id = %s"
