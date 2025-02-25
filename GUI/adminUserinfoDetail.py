@@ -22,31 +22,6 @@ class adminUserinfoDetailWindow(QMainWindow, form_class):
         self.loadData()
         self.nameData()
 
-    # def okShow(self):
-    #     try:
-    #         selected_user_id = self.comboBox_2.currentText()  # 선택된 user_id 가져오기
-    #         selected_card_id = self.comboBox.currentText()
-
-    #         if not selected_user_id:
-    #             QMessageBox.warning(self, "경고", "변경할 사용자를 선택하세요.")
-    #             return
-            
-    #         print(f"선택된 user_id: {selected_user_id}")  # 디버깅 로그
-    #         print(f"선택된 user_card_id: {selected_card_id}")  # 디버깅 로그
-
-    #         db = DB(db_name="iot")
-    #         db.connect()
-    #         db.set_cursor_buffered_true()
-
-    #         query = "UPDATE user SET user_card_id = %s WHERE user_id = %s"
-    #         db.execute(query, (int(selected_card_id), int(selected_user_id)))
-            
-    #         db.close()
-    #         self.close()
-    #         print("change success")
-
-    #     except Exception as e:
-    #         QMessageBox.critical(self, "오류", f"데이터 불러오기 실패: {str(e)}")
     def okShow(self):
         try:
             selected_user_id = self.comboBox_2.currentText()  # 선택된 user_id 가져오기

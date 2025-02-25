@@ -1,7 +1,10 @@
+import os
+import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 from userPlantDetail import plantInfoWindow
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
 
 form_class = uic.loadUiType("userKitRentalDetail.ui")[0]
@@ -16,9 +19,9 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
 
         self.user_num = user_num
 
-        db = DB(db_name="iot")
-        db.connect()
-        db.set_cursor_buffered_true()
+        self.db = DB(db_name="iot")
+        self.db.connect()
+        self.db.set_cursor_buffered_true()
 
         self.load_plant_names()
 
@@ -26,8 +29,45 @@ class userKitRentalDetailWindow(QMainWindow, form_class):
     
     def kitRentShow(self):
         print("Kit rent detail")
+        try:
+            selected_plant_nickname = self.textEdit.toPlainText().strip()
+            selected_plant_name = self.typeCombo.currentText().strip()
+            selected_planting_date = self.dateEdit.date().toString("yyyy-MM-dd")  # 날짜 가져오기
+
+            if not selected_plant_nickname or not selected_plant_name:
+                QMessageBox.warning(self, "경고", "식물 별칭과 종류를 입력하세요.")
+                return
+
+            print(f"선택된 plant_nickname: {selected_plant_nickname}")  
+            print(f"선택된 plant_name: {selected_plant_name}")
+            print(f"선택된 planting_date: {selected_planting_date}")
+
+            # 선택된 식물 이름을 plant_id로 변환
+            query = "SELECT plant_id FROM plant WHERE plant_name = %s"
+            self.db.execute(query, (selected_plant_name,))
+            plant_id_result = self.db.fetchone()
+
+            if not plant_id_result:
+                QMessageBox.warning(self, "오류", "선택한 식물이 존재하지 않습니다.")
+                return
+
+            plant_id = plant_id_result[0]  # 실제 plant_id 값
+            print(f"변환된 plant_id: {plant_id}")
+
+            # rental_kit 테이블에 데이터 삽입
+            insert_query = """
+                INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date) 
+                VALUES (%s, %s, %s, %s)
+            """
+            self.db.execute(insert_query, (self.user_num, selected_plant_nickname, plant_id, selected_planting_date))
+            self.db.commit()
+            QMessageBox.information(self, "성공", "식물 대여 정보가 저장되었습니다.")
+
+        except Exception as e:
+            QMessageBox.critical(self, "오류", f"식물 선택 실패: {str(e)}")
+
         self.close()
-        self.main_window = plantInfoWindow()
+        self.main_window = plantInfoWindow(self.user_num)
         self.main_window.show()
 
     def load_plant_names(self):

@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
 # from userKitRentalDetail import userRegisterWindow
 
@@ -23,4 +25,3 @@ class plantInfoWindow(QMainWindow, form_class):
 
     def closeClicked(self):
         sys.exit()
-        
