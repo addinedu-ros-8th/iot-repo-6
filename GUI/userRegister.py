@@ -50,4 +50,3 @@ class userRegisterWindow(QMainWindow, form_class):
 
         self.close()  # 현재 창 닫기
         self.main_window.show()  # 새 창 열기
-
