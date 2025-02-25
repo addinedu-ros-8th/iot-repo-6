@@ -30,7 +30,7 @@ class SignInWindow(QMainWindow, form_class):
         db = DB(db_name="iot")
         db.connect()
         db.set_cursor_buffered_true()
-        db.execute("SELECT COUNT(*) FROM user WHERE user_id = %s AND user_password = %s", (username, password))
+        db.execute("SELECT user_num FROM user WHERE user_id = %s AND user_password = %s", (username, password))
         result = db.fetchall()
 
         if username == "admin" and password == "1234":
@@ -41,9 +41,10 @@ class SignInWindow(QMainWindow, form_class):
 
         elif result and result[0][0] > 0:
             print("User login success")
-            user_id = result[0][0]
+            user_num = result[0][0]
+            print(user_num)
             self.close()
-            self.main_window = userRegisterWindow(user_id)
+            self.main_window = userRegisterWindow(user_num)
             self.main_window.show()
             
         else:
