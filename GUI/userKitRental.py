@@ -53,92 +53,32 @@ class kitRentWindow(QMainWindow, form_class):
                 checkbox.setEnabled(True)
 
     def update_labels(self):
-        query = """SELECT 
-                r.farm_kit_id, 
-                f.farm_num, 
-                r.user_id, 
-                u.user_num, 
-                r.plant_id, 
-                p.plant_name, 
-                r.rental_startdate, 
-                r.planting_date, 
-                rks.rental_kit_status
-            FROM 
-                rental_kit r
-            LEFT JOIN 
-                farm_kit f ON r.farm_kit_id = f.farm_kit_id
-            LEFT JOIN 
-                user u ON r.user_id = u.user_num
-            LEFT JOIN 
-                plant p ON r.plant_id = p.plant_id
-            LEFT JOIN 
-                rental_kit_status rks ON r.rental_kit_status_id = rks.rental_kit_status_id;"""
-        
+        """렌탈된 키트를 확인하고 체크박스를 조작하는 함수"""
+        # 이미 대여된 farm_kit_id 가져오기
+        query = "SELECT farm_kit_id FROM rental_kit"
         self.db.cursor.execute(query)
-        results = self.db.cursor.fetchall()
+        rented_kits = {row[0] for row in self.db.cursor.fetchall()}  # 집합(set)으로 저장
 
-        labels = [self.num_1, self.num_2, self.num_3, self.num_4] 
-        checkboxes = [self.checkBox_1, self.checkBox_2, self.checkBox_3, self.checkBox_4] 
+        labels = [self.num_1, self.num_2, self.num_3, self.num_4]
+        checkboxes = [self.checkBox_1, self.checkBox_2, self.checkBox_3, self.checkBox_4]
 
-        rented_kit_ids = [row[1] for row in results]
-
-        for i, row in enumerate(results):
-            (
-                farm_kit_id, farm_num, user_id, user_num, plant_id, plant_name, 
-                rental_startdate, planting_date, rental_kit_status
-            ) = row  
-
-            labels[i].setText(
-                f"농장 키트 ID: {farm_kit_id}\n"
-                f"농장 번호: {farm_num}\n"
-                f"사용자 ID: {user_id}\n"
-                f"식물 이름: {plant_name}\n"
-                f"대여 시작: {rental_startdate}\n"
-                f"식재 날짜: {planting_date}\n"
-                f"상태: {rental_kit_status}"
-            )
-            checkboxes[i].setEnabled(False)
-
-        for j in range(len(results), 4):
-            labels[j].setText("대여 키트 정보 없음")
-            checkboxes[j].setEnabled(True)
-
-        print(f"rented_kit_ids: {rented_kit_ids}")
-
-        if 1 in rented_kit_ids:
-            self.checkBox_1.setEnabled(False)
-        if 2 in rented_kit_ids:
-            self.checkBox_2.setEnabled(False)
-        if 3 in rented_kit_ids:
-            self.checkBox_3.setEnabled(False)
-        if 4 in rented_kit_ids:
-            self.checkBox_4.setEnabled(False)
-
-
+        # 체크박스 상태 업데이트
+        for i in range(4):  # 1~4번 farm_kit_id 기준
+            farm_kit_id = i + 1  
+            if farm_kit_id in rented_kits:
+                checkboxes[i].setChecked(True)
+                checkboxes[i].setEnabled(False)  # 대여된 키트는 체크 후 비활성화
+                labels[i].setText(f"농장 키트 ID: {farm_kit_id} (대여됨)")
+            else:
+                checkboxes[i].setChecked(False)
+                checkboxes[i].setEnabled(True)  # 대여되지 않은 키트는 선택 가능
+                labels[i].setText(f"농장 키트 ID: {farm_kit_id} (대여 가능)")
 
     def save_rental_kit(self):
-
+        """체크된 키트를 rental_kit 테이블에 저장"""
         if not self.dateEdit.date().isValid():
             QMessageBox.warning(self, "경고", "날짜를 선택하세요")
             return
-        
-        selected_kits = [
-            self.checkBox_1.isChecked(),
-            self.checkBox_2.isChecked(),
-            self.checkBox_3.isChecked(),
-            self.checkBox_4.isChecked()
-        ]
-
-        query_status = "SELECT rental_kit_status_id FROM rental_kit_status WHERE rental_kit_status = %s"
-        self.db.cursor.execute(query_status, ('available',))
-        available_status = self.db.cursor.fetchone()  
-        if available_status:
-            available_status = available_status[0]  
-
-        self.db.cursor.execute(query_status, ('unavailable',))
-        unavailable_status = self.db.cursor.fetchone() 
-        if unavailable_status:
-            unavailable_status = unavailable_status[0]
 
         rent_startdate = self.dateEdit.date().toString("yyyy-MM-dd")
 
@@ -165,4 +105,13 @@ class kitRentWindow(QMainWindow, form_class):
                     self.db.commit()
                     print(f"키트 {kit_id}가 새로 등록되었습니다.")
 
-        print("데이터가 삽입되었습니다.")
+        # 키트 대여 처리
+        for kit_id in selected_kits:
+            self.db.cursor.execute(
+                "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id, rental_startdate) VALUES (%s, %s, %s, %s)",
+                (self.user_num, kit_id, unavailable_status, rent_startdate)
+            )
+            self.db.commit()
+
+        QMessageBox.information(self, "성공", "대여가 완료되었습니다.")
+        self.update_labels()  # UI 업데이트

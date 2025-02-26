@@ -40,21 +40,21 @@ class userRegisterWindow(QMainWindow, form_class):
         query_check_farm_kit = "SELECT farm_kit_id FROM rental_kit WHERE user_id = %s"
         self.db.cursor.execute(query_check_farm_kit, (self.user_num,))
         rental_kit = self.db.cursor.fetchone()
-
         if not rental_kit or rental_kit[0] is None:  # farm_kit_id가 없다면
             print(f"user_id {self.user_num}의 rental_kit에 farm_kit_id가 없음 → 등록 페이지로 이동")
             QMessageBox.warning(self, "경고", "등록된 농장 키트가 없습니다.")
             return  # 경고창을 띄운 후, 함수 종료로 창 변경을 막습니다.
-        
-        query = "SELECT plant_id FROM rental_kit WHERE user_id = %s"
+
+        # rental_kit 테이블에서 user_id가 self.user_num과 일치하는지 확인
+        query = "SELECT user_id FROM rental_kit WHERE plant_id = %s"
         self.db.execute(query, (self.user_num,))
         result = self.db.fetchone()
 
-        if result and result[0] is not None: 
-            print(f"user_id {self.user_num}의 plant_id가 rental_kit 테이블에 존재 → Kit Rental Detail 페이지로 이동")
-            self.main_window = userPlantDetailWindow(self.user_num)
-        else:  
-            print(f"user_id {self.user_num}의 plant_id가 없음 → Plant Info 페이지로 이동")
+        if result and result[0] == self.user_num:  # user_id 값이 정확히 일치하면 plantInfoWindow로 이동
+            print(f"user_id {self.user_num}가 rental_kit 테이블에 존재 → Plant Info 페이지로 이동")
+            self.main_window = userPlantDetailWindow(self.user_num)  
+        else:  # 존재하지 않으면 Kit Rental Detail 페이지로 이동
+            print(f"user_id {self.user_num}가 rental_kit 테이블에 없음 → Kit Rental Detail 페이지로 이동")
             self.main_window = userPlantRegistWindow(self.user_num)
 
         self.close()  # 현재 창 닫기

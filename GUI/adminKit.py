@@ -43,7 +43,6 @@ class adminKitWindow(QMainWindow, form_class):
                     rks.rental_kit_status,  -- rental_kit_status 테이블의 상태값
                     fk.farm_num,            -- farm_kit 테이블에서 farm_num 사용
                     u.name AS user_name,    -- user 테이블에서 'name' 컬럼 사용
-                    uc.user_card,           -- user_card 테이블에서 user_card 값
                     p.plant_name,           -- plant 테이블에서 plant_name 사용
                     rk.rental_startdate,
                     rk.planting_date,
@@ -55,18 +54,18 @@ class adminKitWindow(QMainWindow, form_class):
                 LEFT JOIN rental_kit_status rks ON rk.rental_kit_status_id = rks.rental_kit_status_id
                 LEFT JOIN farm_kit fk ON rk.farm_kit_id = fk.farm_kit_id
                 LEFT JOIN user u ON rk.user_id = u.user_num  -- user 테이블의 user_num과 연결
-                LEFT JOIN user_card uc ON rk.user_card_id = uc.user_card_id
                 LEFT JOIN plant p ON rk.plant_id = p.plant_id
                 LEFT JOIN plant_status ps ON rk.plant_status_id = ps.plant_status_id;
             """
             
             db.execute(query)
             data = db.fetchall()
-
+            # uc.user_card,           -- user_card 테이블에서 user_card 값
+#                 LEFT JOIN user_card uc ON rk.user_id = uc.user_card_id
             # 컬럼 이름 설정
             column_names = [
                 "Rental Kit ID", "Rental Kit Status", "Farm Kit", "User Name", 
-                "User Card", "Plant", "Rental Start Date", "Planting Date", "Plant Status"
+                "Plant", "Rental Start Date", "Planting Date", "Plant Status"
             ]
 
             # 테이블 위젯 설정

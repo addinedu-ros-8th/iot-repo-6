@@ -51,7 +51,7 @@ class adminUserinfoWindow(QMainWindow, form_class):
             # 🔹 데이터 가져오기
             db.execute("SELECT * FROM user")
             rows = db.fetchall()
-
+            # user_num, user_id, user_password, user_card_id, farm_kit_id, phone_number, name
             if not rows:
                 QMessageBox.information(self, "정보", "데이터가 없습니다.")
                 return

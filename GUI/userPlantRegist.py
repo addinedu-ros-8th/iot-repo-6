@@ -53,11 +53,9 @@ class userPlantRegistWindow(QMainWindow, form_class):
 
             plant_id = plant_id_result[0]
             print(f"변환된 plant_id: {plant_id}")
-
             check_query = "SELECT COUNT(*) FROM rental_kit WHERE user_id = %s"
             self.db.execute(check_query, (self.user_num,))
             user_exists = self.db.fetchone()[0] > 0  # 존재 여부 확인
-
             if user_exists:
                 # 기존 행 업데이트
                 update_query = """
@@ -70,14 +68,12 @@ class userPlantRegistWindow(QMainWindow, form_class):
             else:
                 # 새 행 삽입
                 insert_query = """
-                    INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date) 
+                    INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date)
                     VALUES (%s, %s, %s, %s)
                 """
                 self.db.execute(insert_query, (self.user_num, selected_plant_nickname, plant_id, selected_planting_date))
                 QMessageBox.information(self, "성공", "식물 대여 정보가 저장되었습니다.")
-
             self.db.commit()
-
         except Exception as e:
             QMessageBox.critical(self, "오류", f"식물 선택 실패: {str(e)}")
 

@@ -4,6 +4,7 @@ from datetime import datetime
 from PyQt5 import uic
 import sys
 import os
+from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from backend.database.database_manager import DB
 # from userRegister import userRegisterWindow
@@ -15,9 +16,7 @@ class userPlantDetailWindow(QMainWindow, form_class):
     def __init__(self,user_num):
         super().__init__()
         self.setupUi(self)
-
         self.user_num = user_num
-
         self.db = DB(db_name="iot")
         self.db.connect()
         self.db.set_cursor_buffered_true()
