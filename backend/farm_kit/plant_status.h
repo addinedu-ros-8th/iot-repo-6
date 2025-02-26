@@ -27,6 +27,11 @@ float readHumidity() {
 
 void lightControlSetup() {
   pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW); // 기본 상태: OFF
+}
+
+void setLight(bool state) {
+  digitalWrite(LED_PIN, state ? HIGH : LOW);
 }
 
 int readLightValue() {
@@ -40,7 +45,6 @@ int readLightValue() {
 }
 
 // ----- 팬 제어 -----
-// 기존 RELAY_PIN이 SERVO_PIN과 충돌할 수 있으므로 다른 핀으로 재지정 (예: 11)
 #define RELAY_PIN 6  
 
 void fanSetup() {
@@ -48,68 +52,8 @@ void fanSetup() {
     digitalWrite(RELAY_PIN, LOW);
 }
 
-String fanLoop() {
-    if (Serial.available()) {
-        String command = Serial.readStringUntil('\n');
-        command.trim();
-        if (command == "ON") {
-            digitalWrite(RELAY_PIN, HIGH);
-        } else if (command == "OFF") {
-            digitalWrite(RELAY_PIN, LOW);
-        } else {
-            return "error";
-        }
-    }
-    int state = digitalRead(RELAY_PIN);
-    String fanStatus = (state == HIGH) ? "ON" : "OFF";
-    return "{\"fan_status\":\"" + fanStatus + "\"}";
-}
-
-// ----- 스테퍼 모터 (카메라 관련 제외) -----
-#include <Stepper.h>
-const int stepsPerRevolution = 2048;
-const int stepsPerDegree = stepsPerRevolution / 360;
-Stepper myStepper(stepsPerRevolution, 1, 2, 3, 4);
-int currentFlag = 1;
-int currentAngle = 0;
-
-void stepperMotorSetup() {
-    myStepper.setSpeed(10);
-}
-
-String stepperMotorLoop() {
-    if (Serial.available() > 0) {
-        String input = Serial.readStringUntil('\n');
-        input.trim();
-        int flag = input.toInt();
-        if (flag < 1 || flag > 4) {
-            return "{\"error\":\"Invalid flag\"}";
-        }
-        int targetAngle = (flag == 1) ? 45 : (flag == 2) ? 135 : (flag == 3) ? 255 : 315;
-        int angleDifference = targetAngle - currentAngle;
-        if (angleDifference > 180) angleDifference -= 360;
-        else if (angleDifference < -180) angleDifference += 360;
-        int stepsToMove = angleDifference * stepsPerDegree;
-        myStepper.step(stepsToMove);
-        delay(1000);
-        currentAngle = targetAngle;
-        currentFlag = flag;
-        return "{\"flag\":" + String(flag) + ",\"angle\":" + String(currentAngle) + "}";
-    }
-    return "{}";
-}
-
-// ----- 수위 센서 -----
-#define WATER_LEVEL A1
-
-void waterLevelSensorSetup() {
-  // 별도 초기화 필요 없음
-}
-
-int readWaterLevel() {
-  int sensorValue = analogRead(WATER_LEVEL);
-  int waterLevel = map(sensorValue, 0, 1023, 0, 100);
-  return waterLevel;
+void setFan(bool state) {
+    digitalWrite(RELAY_PIN, state ? HIGH : LOW);
 }
 
 // ----- 펌프 및 토양 수분 센서 -----
@@ -120,9 +64,14 @@ int readWaterLevel() {
 
 void waterPumpSetup() {
     pinMode(WATER_PUMP, OUTPUT);
-    digitalWrite(WATER_PUMP, LOW);
+    digitalWrite(WATER_PUMP, LOW); // 기본 상태: OFF
 }
 
+void setPump(bool state) {
+    digitalWrite(WATER_PUMP, state ? HIGH : LOW);
+}
+
+// ✅ **누락된 `readSoilMoisture()` 함수 추가**
 int readSoilMoisture() {
     return analogRead(SOIL_MOISTURE);
 }
@@ -142,6 +91,33 @@ String getPumpState() {
         pump_status = "NO_CHANGE";
     }
     return pump_status;
+}
+
+// ----- 명령어 처리 -----
+void handleCommand(String command) {
+    command.trim();  // 앞뒤 공백 제거
+
+    if (command == "FAN ON") {
+        setFan(true);
+        Serial.println("{\"status\":\"FAN ON\"}");
+    } else if (command == "FAN OFF") {
+        setFan(false);
+        Serial.println("{\"status\":\"FAN OFF\"}");
+    } else if (command == "LIGHT ON") {
+        setLight(true);
+        Serial.println("{\"status\":\"LIGHT ON\"}");
+    } else if (command == "LIGHT OFF") {
+        setLight(false);
+        Serial.println("{\"status\":\"LIGHT OFF\"}");
+    } else if (command == "PUMP ON") {
+        setPump(true);
+        Serial.println("{\"status\":\"PUMP ON\"}");
+    } else if (command == "PUMP OFF") {
+        setPump(false);
+        Serial.println("{\"status\":\"PUMP OFF\"}");
+    } else {
+        Serial.println("{\"error\":\"Unknown command\"}");
+    }
 }
 
 #endif // PLANT_STATUS_H

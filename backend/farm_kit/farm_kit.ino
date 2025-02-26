@@ -7,8 +7,6 @@ void setup() {
     // 센서 및 액추에이터 초기화
     atmosphereTempHumSetup();
     lightControlSetup();
-    stepperMotorSetup();
-    waterLevelSensorSetup();
     waterPumpSetup();
     fanSetup();
 }
@@ -26,19 +24,21 @@ void loop() {
         float temp = readTemperature();
         float hum = readHumidity();
         int lightVal = readLightValue();
-        int waterLevel = readWaterLevel();
         int soilMoisture = readSoilMoisture();
-        String pumpState = getPumpState();
 
         String sensorJson = "{";
         sensorJson += "\"temp\":" + String(temp, 2) + ",";
         sensorJson += "\"hum\":" + String(hum, 2) + ",";
         sensorJson += "\"light\":" + String(lightVal) + ",";
-        sensorJson += "\"waterLevel\":" + String(waterLevel) + ",";
-        sensorJson += "\"soilMoisture\":" + String(soilMoisture) + ",";
-        sensorJson += "\"pumpState\":\"" + pumpState + "\"";
+        sensorJson += "\"soilMoisture\":" + String(soilMoisture);
         sensorJson += "}";
 
         Serial.println(sensorJson);
+    }
+
+    // ✅ 명령어 수신 및 처리
+    if (Serial.available()) {
+        String command = Serial.readStringUntil('\n');  // 명령어 읽기
+        handleCommand(command);  // 명령어 처리
     }
 }

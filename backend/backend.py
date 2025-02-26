@@ -5,7 +5,7 @@ from database.database_manager import DB
 from datetime import datetime
 
 # 아두이노 시리얼 포트 설정
-kit_arduino = serial.Serial('/dev/cu.usbmodem11401', 115200, timeout=1)
+kit_arduino = serial.Serial('/dev/cu.usbmodem11201', 115200, timeout=1)
 door_arduino = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
 time.sleep(2)  # 연결 안정화 대기
 
@@ -99,11 +99,18 @@ try:
         # 🌱 센서 데이터 수집
         if kit_arduino.in_waiting > 0:
             line = kit_arduino.readline().decode('utf-8', errors="ignore").strip()
-            print("[KIT] 수신된 라인:", line)
+            print(f"[KIT] 수신된 라인: {line}")
             
             try:
                 data = json.loads(line)
-                if "temp" in data:
+
+                # ✅ 명령 상태 응답 처리
+                if "status" in data:
+                    print(f"✅ 장치 상태 응답: {data['status']}")  # 명령 수행 로그로 변경
+                    continue  # 센서 데이터 처리 스킵
+
+                # ✅ 센서 데이터 처리
+                if "temp" in data and "hum" in data and "light" in data and "soilMoisture" in data:
                     temp = data["temp"]
                     hum = data["hum"]
                     light = data["light"]
@@ -115,7 +122,7 @@ try:
                     # 환경 기준과 비교하여 장치 제어
                     set_plant_env(plant_env, temp, hum, light, soilMoisture)
 
-                    # ✅ 현재 센서 데이터 업데이트 (기존 값이 있으면 업데이트)
+                    # ✅ 센서 데이터 저장
                     sql = """
                     UPDATE plant_status
                     SET temperature = %s, humidity = %s, soil_moisture = %s, light_intensity = %s, timestamp = %s
@@ -124,7 +131,7 @@ try:
                     db.execute(sql, (temp, hum, soilMoisture, light, timestamp, current_kit_num))
                     db.commit()
 
-                    # ✅ 센서 데이터 로그 저장 (기록 유지)
+                    # ✅ 센서 데이터 로그 저장
                     sql = """
                     INSERT INTO plant_status_log (temperature, humidity, soil_moisture, light_intensity, timestamp, farm_kit_id)
                     VALUES (%s, %s, %s, %s, %s, %s)
@@ -134,9 +141,10 @@ try:
 
                     print("✅ 센서 데이터 저장 완료!")
                 else:
-                    print("알 수 없는 데이터:", data)
+                    print("⚠️ 예상되지 않은 데이터 형식:", data)
             except json.JSONDecodeError:
-                print("JSON decode error:", line)
+                print("⚠️ JSON decode error:", line)
+
 
         # 🔑 RFID 데이터 수집 및 서보모터 동작
         if door_arduino.in_waiting > 0:
