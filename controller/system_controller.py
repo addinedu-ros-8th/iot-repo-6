@@ -9,7 +9,7 @@ kit_arduino = serial.Serial('/dev/cu.usbmodem11201', 115200, timeout=1)
 door_arduino = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
 time.sleep(2)  # 연결 안정화 대기
 
-current_kit_num = 1
+current_kit_num = 5
 
 # DB 연결
 db = DB(db_name="iot")
@@ -75,6 +75,7 @@ def set_plant_env(plant_env, temp, hum, light, soil_moisture):
     elif light < plant_env["light_intensity_min"]:
         kit_arduino.write(b'LIGHT ON\n')
         print("💡 조도 낮음 → 조명 ON")
+
 
     # 토양 수분 제어 (수중 모터)
     if soil_moisture > plant_env["soil_moisture_max"]:
