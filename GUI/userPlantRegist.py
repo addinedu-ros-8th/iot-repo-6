@@ -33,6 +33,7 @@ class userPlantRegistWindow(QMainWindow, form_class):
             selected_plant_nickname = self.textEdit.toPlainText().strip()
             selected_plant_name = self.typeCombo.currentText().strip()
             selected_planting_date = self.dateEdit.date().toString("yyyy-MM-dd")  # 날짜 가져오기
+            selected_farm_kit_id = self.numCombo.currentText().strip() 
 
             if not selected_plant_nickname or not selected_plant_name:
                 QMessageBox.warning(self, "경고", "식물 별칭과 종류를 입력하세요.")
@@ -41,7 +42,7 @@ class userPlantRegistWindow(QMainWindow, form_class):
             print(f"선택된 plant_nickname: {selected_plant_nickname}")  
             print(f"선택된 plant_name: {selected_plant_name}")
             print(f"선택된 planting_date: {selected_planting_date}")
-
+            print(f"선택된 farm_kit_id: {selected_farm_kit_id}")
 
             query = "SELECT plant_id FROM plant WHERE plant_name = %s"
             self.db.execute(query, (selected_plant_name,))
@@ -60,7 +61,7 @@ class userPlantRegistWindow(QMainWindow, form_class):
                 # 기존 행 업데이트
                 update_query = """
                     UPDATE rental_kit
-                    SET plant_nickname = %s, plant_id = %s, planting_date = %s
+                    SET plant_nickname = %s, plant_id = %s, planting_date = %s, farm_kit_id
                     WHERE user_id = %s
                 """
                 self.db.execute(update_query, (selected_plant_nickname, plant_id, selected_planting_date, self.user_num))
@@ -68,8 +69,8 @@ class userPlantRegistWindow(QMainWindow, form_class):
             else:
                 # 새 행 삽입
                 insert_query = """
-                    INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO rental_kit (user_id, plant_nickname, plant_id, planting_date, farm_kit_id)
+                    VALUES (%s, %s, %s, %s, %s)
                 """
                 self.db.execute(insert_query, (self.user_num, selected_plant_nickname, plant_id, selected_planting_date))
                 QMessageBox.information(self, "성공", "식물 대여 정보가 저장되었습니다.")
@@ -89,3 +90,11 @@ class userPlantRegistWindow(QMainWindow, form_class):
         self.typeCombo.clear()
         for row in result:
             self.typeCombo.addItem(row[0])
+
+        farm_kit_query = "SELECT farm_kit_id FROM rental_kit WHERE user_id = %s"
+        self.db.execute(farm_kit_query, (self.user_num,))
+        farm_kit_result = self.db.fetchall()
+        
+        self.numCombo.clear()
+        for row in farm_kit_result:
+            self.numCombo.addItem(str(row[0])) 
