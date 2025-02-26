@@ -1,3 +1,5 @@
+import cv2
+from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from datetime import datetime
@@ -36,6 +38,26 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.closeButton.clicked.connect(self.closeClicked)
 
         self.num_box.currentIndexChanged.connect(self.on_farm_selected)
+        
+        # 카메라 설정
+        self.cap = cv2.VideoCapture(0)  # 기본 카메라 사용 (0번)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(30)  # 30ms마다 프레임 업데이트
+
+    def update_frame(self):
+        """카메라 프레임을 받아와 QLabel에 표시"""
+        ret, frame = self.cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # BGR -> RGB 변환
+            height, width, channel = frame.shape
+            bytes_per_line = channel * width
+            qimg = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
+            self.camera_label.setPixmap(QPixmap.fromImage(qimg))
+
+    def closeClicked(self):
+        self.cap.release()  # 카메라 해제
+        sys.exit()
 
     def get_farm_num(self):
         query = """SELECT farm_kit_id 
