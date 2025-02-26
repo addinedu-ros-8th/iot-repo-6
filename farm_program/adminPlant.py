@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))     # 현재 스크립트의 부모 디렉터리를 sys.path에 추가
-from backend.database.database_manager import DB
+from controller.database.database_manager import DB
 
 form_class = uic.loadUiType("adminPlant.ui")[0]
 
