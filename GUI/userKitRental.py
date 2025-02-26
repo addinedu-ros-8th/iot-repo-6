@@ -54,7 +54,6 @@ class kitRentWindow(QMainWindow, form_class):
 
     def update_labels(self):
         """렌탈된 키트를 확인하고 체크박스를 조작하는 함수"""
-        # 이미 대여된 farm_kit_id 가져오기
         query = "SELECT farm_kit_id FROM rental_kit"
         self.db.cursor.execute(query)
         rented_kits = {row[0] for row in self.db.cursor.fetchall()}  # 집합(set)으로 저장
@@ -62,16 +61,16 @@ class kitRentWindow(QMainWindow, form_class):
         labels = [self.num_1, self.num_2, self.num_3, self.num_4]
         checkboxes = [self.checkBox_1, self.checkBox_2, self.checkBox_3, self.checkBox_4]
 
-        # 체크박스 상태 업데이트
-        for i in range(4):  # 1~4번 farm_kit_id 기준
+
+        for i in range(4): 
             farm_kit_id = i + 1  
             if farm_kit_id in rented_kits:
                 checkboxes[i].setChecked(True)
-                checkboxes[i].setEnabled(False)  # 대여된 키트는 체크 후 비활성화
+                checkboxes[i].setEnabled(False)
                 labels[i].setText(f"농장 키트 ID: {farm_kit_id} (대여됨)")
             else:
                 checkboxes[i].setChecked(False)
-                checkboxes[i].setEnabled(True)  # 대여되지 않은 키트는 선택 가능
+                checkboxes[i].setEnabled(True)
                 labels[i].setText(f"농장 키트 ID: {farm_kit_id} (대여 가능)")
 
     def save_rental_kit(self):
@@ -82,36 +81,38 @@ class kitRentWindow(QMainWindow, form_class):
 
         rent_startdate = self.dateEdit.date().toString("yyyy-MM-dd")
 
-        check_query = "SELECT * FROM rental_kit WHERE farm_kit_id = %s AND rental_kit_status_id = %s"
+        checkboxes = [self.checkBox_1, self.checkBox_2, self.checkBox_3, self.checkBox_4]
+        
+
+        selected_kits = [i + 1 for i, checkbox in enumerate(checkboxes) if checkbox.isChecked()]
+
+        if not selected_kits:
+            QMessageBox.warning(self, "경고", "적어도 하나의 키트를 선택하세요.")
+            return
+
+        check_query = "SELECT * FROM rental_kit WHERE farm_kit_id = %s"
         insert_query = "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id, rental_startdate) VALUES (%s, %s, %s, %s)"
         update_query = "UPDATE rental_kit SET rental_kit_status_id = %s, rental_startdate = %s WHERE rental_kit_id = %s"
-        
-        kit_count = 4
-        for kit_id in range(1, kit_count + 1):
-            if selected_kits[kit_id - 1]:
-                self.db.cursor.execute(check_query, (self.user_num, kit_id))
-                existing_rental = self.db.cursor.fetchone()
 
-                if existing_rental:
-                    rental_kit_id, _, rental_status, _ = existing_rental
-                    if rental_status == available_status:
-                        self.db.cursor.execute(update_query, (rent_startdate, self.user_num, kit_id))
-                        self.db.commit()
-                        print(f"키트 {kit_id}의 대여 시작 날짜가 수정되었습니다.")
-                    else:
-                        QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 대여된 상태입니다.")
-                else: 
-                    self.db.cursor.execute(insert_query, (self.user_num, kit_id, unavailable_status, rent_startdate))
-                    self.db.commit()
-                    print(f"키트 {kit_id}가 새로 등록되었습니다.")
+        unavailable_status = 2  # 예: 대여 중 상태
+        available_status = 1  # 예: 사용 가능 상태
 
-        # 키트 대여 처리
         for kit_id in selected_kits:
-            self.db.cursor.execute(
-                "INSERT INTO rental_kit (user_id, farm_kit_id, rental_kit_status_id, rental_startdate) VALUES (%s, %s, %s, %s)",
-                (self.user_num, kit_id, unavailable_status, rent_startdate)
-            )
+            self.db.cursor.execute(check_query, (kit_id,))
+            existing_rental = self.db.cursor.fetchone()
+
+            if existing_rental:
+                rental_kit_id, _, rental_status, _ = existing_rental
+                if rental_status == available_status:
+                    self.db.cursor.execute(update_query, (unavailable_status, rent_startdate, rental_kit_id))
+                    print(f"키트 {kit_id}의 대여 시작 날짜가 수정되었습니다.")
+                else:
+                    QMessageBox.warning(self, "경고", f"키트 {kit_id}는 이미 대여된 상태입니다.")
+            else:
+                self.db.cursor.execute(insert_query, (self.user_num, kit_id, unavailable_status, rent_startdate))
+                print(f"키트 {kit_id}가 새로 등록되었습니다.")
+
             self.db.commit()
 
-        QMessageBox.information(self, "성공", "대여가 완료되었습니다.")
-        self.update_labels()  # UI 업데이트
+            QMessageBox.information(self, "성공", "대여가 완료되었습니다.")
+            self.update_labels()  # UI 업데이트

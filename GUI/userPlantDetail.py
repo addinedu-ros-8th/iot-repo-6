@@ -72,12 +72,12 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.label_8.setText(f"--{days_since_planting}일째!")
 
     def update_air_temperature(self):
-        query = """SELECT ki.air_temperature
-               FROM rental_kit rk
-               JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
-               WHERE rk.user_id = %s
-               ORDER BY ki.kit_info_id DESC
-               LIMIT 1"""
+        query = """SELECT ps.temperature
+                    FROM rental_kit rk
+                    JOIN plant_status ps ON rk.farm_kit_id = ps.farm_kit_id
+                    WHERE rk.user_id = %s
+                    ORDER BY ps.timestamp DESC
+                    LIMIT 1;"""
         
         self.db.cursor.execute(query, (self.user_num,))
         air_temperature = self.db.cursor.fetchone()
@@ -87,12 +87,12 @@ class userPlantDetailWindow(QMainWindow, form_class):
 
 
     def update_air_moisture(self):
-        query = """SELECT ki.air_moisture
-                FROM rental_kit rk
-                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
-                WHERE rk.user_id = %s
-                ORDER BY ki.kit_info_id DESC
-                LIMIT 1"""
+        query = """SELECT ps.humidity
+                    FROM rental_kit rk
+                    JOIN plant_status ps ON rk.farm_kit_id = ps.farm_kit_id
+                    WHERE rk.user_id = %s
+                    ORDER BY ps.timestamp DESC
+                    LIMIT 1;"""
         
         self.db.cursor.execute(query, (self.user_num,))
         air_moisture = self.db.cursor.fetchone()
@@ -100,12 +100,12 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.label_4.setText(f"공기 습도: {air_moisture[0]}%")
 
     def update_soil_moisture(self):
-        query = """SELECT ki.soil_moisture
-                FROM rental_kit rk
-                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
-                WHERE rk.user_id = %s
-                ORDER BY ki.kit_info_id DESC
-                LIMIT 1"""
+        query = """SELECT ps.soil_moisture
+                    FROM rental_kit rk
+                    JOIN plant_status ps ON rk.farm_kit_id = ps.farm_kit_id
+                    WHERE rk.user_id = %s
+                    ORDER BY ps.timestamp DESC
+                    LIMIT 1;"""
         
         self.db.cursor.execute(query, (self.user_num,))
         soil_moisture = self.db.cursor.fetchone()
@@ -114,12 +114,12 @@ class userPlantDetailWindow(QMainWindow, form_class):
 
 
     def update_light_intensity(self):
-        query = """SELECT ki.light_intensity
-                FROM rental_kit rk
-                JOIN kit_info ki ON rk.farm_kit_id = ki.farm_kit_id
-                WHERE rk.user_id = %s
-                ORDER BY ki.kit_info_id DESC
-                LIMIT 1"""
+        query = """SELECT ps.light_intensity
+                    FROM rental_kit rk
+                    JOIN plant_status ps ON rk.farm_kit_id = ps.farm_kit_id
+                    WHERE rk.user_id = %s
+                    ORDER BY ps.timestamp DESC
+                    LIMIT 1;"""
         
         self.db.cursor.execute(query, (self.user_num,))
         light_intensity = self.db.cursor.fetchone()
