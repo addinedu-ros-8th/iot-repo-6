@@ -41,7 +41,6 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.num_box.currentIndexChanged.connect(self.on_farm_selected)
         
         # 카메라 설정
-        self.cap = cv2.VideoCapture(0)  # 기본 카메라 사용 (0번)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(30)  # 30ms마다 프레임 업데이트
