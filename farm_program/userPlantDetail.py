@@ -41,32 +41,34 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.num_box.currentIndexChanged.connect(self.on_farm_selected)
         
         # 카메라 설정
-        self.cap = None
-        self.picam2 = None
-        self.use_cv = False  # OpenCV 사용 여부
-        self.use_camera = False  # 카메라 사용 여부
+        self.cap = cv2.VideoCapture(0)  # 기본 카메라 사용 (0번)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(30)  # 30ms마다 프레임 업데이트
 
         self.os_name = platform.system()
         self.is_raspberry_pi = self.check_raspberry_pi()
-
-        if self.is_raspberry_pi:
+        
+        if self.os_name == "Darwin":  # MacOS
+            self.cap = cv2.VideoCapture(1)
+            self.use_cv = True
+        elif self.is_raspberry_pi:  # Raspberry Pi
             try:
                 self.picamera2_init()
-                self.use_camera = True  # Picamera2 성공 시 카메라 활성화
-                self.use_cv = False  # OpenCV 미사용
             except Exception as e:
                 print("Picamera2 초기화 실패:", e)
-                self.use_camera = False  # 카메라 비활성화
-        else:
+                self.cap = cv2.VideoCapture(0)
+                self.use_cv = True
+        else:  # Ubuntu 등 일반 Linux
             self.cap = cv2.VideoCapture(0)
-            if self.cap.isOpened():
-                self.use_camera = True
-                self.use_cv = True  # OpenCV 사용
-            else:
-                print("OpenCV 카메라 초기화 실패")
-                self.use_camera = False  # 카메라 비활성화
-
-        self.camera_label = QLabel()
+            if not self.cap.isOpened():  # 경고가 뜨거나 카메라가 열리지 않으면 Picamera2 시도
+                print("cv2.VideoCapture(0) 실패, Picamera2 시도")
+            
+                try:
+                    self.picamera2_init()
+                except Exception as e:
+                    print("Picamera2도 실패:", e)
+                    self.use_cv = True
 
     def check_raspberry_pi(self):
         """Raspberry Pi인지 확인하는 함수"""
@@ -93,24 +95,23 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.use_cv = False
 
     def update_frame(self):
-        if not self.use_camera:
-            return  # 카메라가 비활성화된 경우 아무 동작 안 함
-
-        frame = None
-
-        if self.use_cv and self.cap is not None:  # OpenCV 사용 (라즈베리파이가 아님)
+        if self.use_cv:
             ret, frame = self.cap.read()
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        elif self.picam2 is not None:  # Picamera2 사용 (라즈베리파이)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+                q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.camera_label.setPixmap(QPixmap.fromImage(q_img))
+        elif self.picam2 is not None:
             frame = self.picam2.capture_array()
-
-        if frame is not None:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = frame.shape
             bytes_per_line = ch * w
-            q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-            self.camera_label.setPixmap(QPixmap.fromImage(q_img))
+            qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            self.camera_label.setPixmap(QPixmap.fromImage(qimg))
+        else:
+            return  # 둘 다 없으면 종료
 
     def release(self):
         if self.use_cv:
