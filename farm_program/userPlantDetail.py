@@ -42,28 +42,39 @@ class userPlantDetailWindow(QMainWindow, form_class):
         
         # 카메라 설정
         self.cap = None
-        self.use_cv = False
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_frame)
-        self.timer.start(30)  # 30ms마다 프레임 업데이트
+        self.picam2 = None
+        self.use_cv = False  # OpenCV 사용 여부
+        self.use_camera = False  # 카메라 사용 여부
 
         self.os_name = platform.system()
         self.is_raspberry_pi = self.check_raspberry_pi()
-        
-        if self.os_name == "Darwin":  # MacOS
-            self.cap = cv2.VideoCapture(1)
-            self.use_cv = True
-        elif self.is_raspberry_pi:  # Raspberry Pi
+
+        if self.is_raspberry_pi:
             try:
                 self.picamera2_init()
+                self.use_camera = True  # Picamera2 성공 시 카메라 활성화
+                self.use_cv = False  # OpenCV 미사용
             except Exception as e:
                 print("Picamera2 초기화 실패:", e)
-                self.cap = cv2.VideoCapture(0)
-                self.use_cv = True
-        else:  # Ubuntu 등 일반 Linux
+                self.use_camera = False  # 카메라 비활성화
+        else:
             self.cap = cv2.VideoCapture(0)
-            if not self.cap.isOpened():  # 경고가 뜨거나 카메라가 열리지 않으면 Picamera2 시도
-                print("cv2.VideoCapture(0) 실패")
+            if self.cap.isOpened():
+                self.use_camera = True
+                self.use_cv = True  # OpenCV 사용
+            else:
+                print("OpenCV 카메라 초기화 실패")
+                self.use_camera = False  # 카메라 비활성화
+
+        self.camera_label = QLabel()
+
+    def check_raspberry_pi(self):
+        """Raspberry Pi인지 확인하는 함수"""
+        try:
+            with open("/proc/device-tree/model", "r") as f:
+                return "Raspberry Pi" in f.read()
+        except Exception:
+            return False
 
     def picamera2_init(self):
         from picamera2 import Picamera2
@@ -81,29 +92,25 @@ class userPlantDetailWindow(QMainWindow, form_class):
 
         self.use_cv = False
 
-    def check_raspberry_pi(self):
-        """Raspberry Pi인지 확인하는 함수"""
-        try:
-            with open("/proc/device-tree/model", "r") as f:
-                return "Raspberry Pi" in f.read()
-        except Exception:
-            return False
-
     def update_frame(self):
-        frame = self.picam2.capture_array()
+        if not self.use_camera:
+            return  # 카메라가 비활성화된 경우 아무 동작 안 함
+
+        frame = None
+
+        if self.use_cv and self.cap is not None:  # OpenCV 사용 (라즈베리파이가 아님)
+            ret, frame = self.cap.read()
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        elif self.picam2 is not None:  # Picamera2 사용 (라즈베리파이)
+            frame = self.picam2.capture_array()
+
         if frame is not None:
             h, w, ch = frame.shape
             bytes_per_line = ch * w
             q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
             self.camera_label.setPixmap(QPixmap.fromImage(q_img))
-
-        else:
-            frame = self.picam2.capture_array()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            h, w, ch = frame.shape
-            bytes_per_line = ch * w
-            qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-            self.camera_label.setPixmap(QPixmap.fromImage(qimg))
 
     def release(self):
         if self.use_cv:
@@ -140,7 +147,7 @@ class userPlantDetailWindow(QMainWindow, form_class):
 
         if selected_farm_kit_id is None:
             return
-        
+
         self.clear_labels()
 
         self.get_plant_name(selected_farm_kit_id)
@@ -153,6 +160,7 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.update_rental_startdate(selected_farm_kit_id)
 
         # 카메라 서보모터 각도 조절
+        self.update_camera_motor_flag(selected_farm_kit_id)
 
     def clear_labels(self):
         """기존 데이터를 초기화"""
@@ -164,6 +172,15 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.label_5.setText("광도: ")
         self.label_6.setText("식물 종류: ")
         self.label_7.setText("시작일: ")
+
+    def update_camera_motor_flag(self, flag):
+        """ 카메라 모터의 flag 값을 DB에 업데이트 """
+        query = """UPDATE camera_motor_status 
+                SET camera_motor_flag = %s, last_updated = NOW()
+                WHERE id = 1"""
+        self.db.cursor.execute(query, (flag,))
+        self.db.commit()
+        print(f"📡 카메라 모터 FLAG {flag} 설정 완료!")
 
     def get_plant_name(self, farm_kit_id=None):
         sql = """select plant_nickname

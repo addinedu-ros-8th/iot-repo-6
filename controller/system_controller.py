@@ -5,8 +5,8 @@ from database.database_manager import DB
 from datetime import datetime
 
 # 아두이노 시리얼 포트 설정
-kit_arduino = serial.Serial('/dev/cu.usbmodem11201', 115200, timeout=1)
-door_arduino = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
+kit_arduino = serial.Serial('/dev/cu.usbmodem1301', 115200, timeout=1)
+motor_arduino = serial.Serial('/dev/cu.usbmodem1201', 9600, timeout=1)
 time.sleep(2)  # 연결 안정화 대기
 
 current_kit_num = 5
@@ -15,6 +15,14 @@ current_kit_num = 5
 db = DB(db_name="iot")
 db.connect()
 db.set_cursor_buffered_true()
+
+def get_camera_motor_flag():
+    """ 현재 설정된 camera motor flag 값 가져오기 """
+    db.execute("SELECT camera_motor_flag FROM camera_motor_status WHERE id = 1")
+    result = db.fetchone()
+    return result[0] if result else 1  # 기본값 1
+
+last_camera_flag = get_camera_motor_flag()  # 초기값 설정
 
 def get_current_plant_info(kit_num):
     """ 현재 farm_kit에 심어진 식물 정보를 가져옴 """
@@ -97,6 +105,17 @@ try:
     while True:
         print("🔄 데이터 수집 중...")
         
+        # ✅ DB에서 camera motor flag 값 확인
+        camera_flag = get_camera_motor_flag()
+
+        if camera_flag != last_camera_flag:
+            print(f"📡 카메라 모터 FLAG {camera_flag} 감지 → 이동")
+
+            motor_command = f"CAMERA FLAG {camera_flag}" + "\n"
+            motor_command_bytes = motor_command.encode()
+            motor_arduino.write(motor_command_bytes)  # 모터 이동 명령
+            last_camera_flag = camera_flag
+
         # 🌱 센서 데이터 수집
         if kit_arduino.in_waiting > 0:
             line = kit_arduino.readline().decode('utf-8', errors="ignore").strip()
@@ -148,8 +167,8 @@ try:
 
 
         # 🔑 RFID 데이터 수집 및 서보모터 동작
-        if door_arduino.in_waiting > 0:
-            line = door_arduino.readline().decode('utf-8').strip()
+        if motor_arduino.in_waiting > 0:
+            line = motor_arduino.readline().decode('utf-8', errors="ignore").strip()
             print("[DOOR] 수신된 라인:", line)
 
             try:
@@ -168,7 +187,7 @@ try:
 
                     # ✅ 등록된 UID일 경우에만 문 열기 명령 전송
                     if uid in registered_uids:
-                        door_arduino.write(b'OPEN\n')
+                        motor_arduino.write(b'OPEN\n')
                     else:
                         print("❌ 미등록 UID - 문 열림 불가")
             except json.JSONDecodeError:
@@ -179,5 +198,5 @@ try:
 except KeyboardInterrupt:
     print("\n프로그램 종료")
     kit_arduino.close()
-    door_arduino.close()
+    motor_arduino.close()
     db.close()
