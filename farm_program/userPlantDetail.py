@@ -41,7 +41,8 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.num_box.currentIndexChanged.connect(self.on_farm_selected)
         
         # 카메라 설정
-        self.cap = cv2.VideoCapture(0)  # 기본 카메라 사용 (0번)
+        self.cap = None
+        self.use_cv = False
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(30)  # 30ms마다 프레임 업데이트
@@ -62,13 +63,7 @@ class userPlantDetailWindow(QMainWindow, form_class):
         else:  # Ubuntu 등 일반 Linux
             self.cap = cv2.VideoCapture(0)
             if not self.cap.isOpened():  # 경고가 뜨거나 카메라가 열리지 않으면 Picamera2 시도
-                print("cv2.VideoCapture(0) 실패, Picamera2 시도")
-            
-                try:
-                    self.picamera2_init()
-                except Exception as e:
-                    print("Picamera2도 실패:", e)
-                    self.use_cv = True
+                print("cv2.VideoCapture(0) 실패")
 
     def picamera2_init(self):
         from picamera2 import Picamera2
