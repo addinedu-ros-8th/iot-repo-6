@@ -11,7 +11,7 @@ kit_arduino = serial.Serial('/dev/ttyACM1', 115200, timeout=1)
 motor_arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)  # 연결 안정화 대기
 
-current_kit_num = 5
+current_kit_num = 1
 
 # DB 연결
 db = DB(db_name="iot")

@@ -13,7 +13,7 @@
 MFRC522 rfid(SS_PIN, RST_PIN);
 Servo doorMotor;
 
-// ✅ camera motor (스텝모터 핀 1~4 설정)
+// camera motor (스텝모터 핀 1~4 설정)
 #define STEPS_PER_REV 2048  // 28BYJ-48 기준
 #define STEPS_PER_DEGREE (STEPS_PER_REV / 360)  
 Stepper cameraMotor(STEPS_PER_REV, 1, 3, 2, 4); // IN1, IN3, IN2, IN4 (핀 1, 2, 3, 4 사용)

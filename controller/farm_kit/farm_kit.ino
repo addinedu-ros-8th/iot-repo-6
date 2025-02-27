@@ -17,7 +17,7 @@ const unsigned long sensorInterval = 10000;  // 센서 데이터 출력 간격 1
 void loop() {
     unsigned long currentMillis = millis();
 
-    // ✅ 센서 데이터 출력 (10초마다)
+    // 센서 데이터 출력 (10초마다)
     if (currentMillis - previousSensorTime >= sensorInterval) {
         previousSensorTime = currentMillis;
 
@@ -36,7 +36,7 @@ void loop() {
         Serial.println(sensorJson);
     }
 
-    // ✅ 명령어 수신 및 처리
+    // 명령어 수신 및 처리
     if (Serial.available()) {
         String command = Serial.readStringUntil('\n');  // 명령어 읽기
         handleCommand(command);  // 명령어 처리
