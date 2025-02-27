@@ -105,7 +105,6 @@ class userPlantDetailWindow(QMainWindow, form_class):
                 self.camera_label.setPixmap(QPixmap.fromImage(q_img))
         elif self.picam2 is not None:
             frame = self.picam2.capture_array()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = frame.shape
             bytes_per_line = ch * w
             qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
