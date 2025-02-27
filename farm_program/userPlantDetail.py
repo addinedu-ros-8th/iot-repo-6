@@ -1,4 +1,5 @@
 import cv2
+import platform
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -45,15 +46,76 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(30)  # 30ms마다 프레임 업데이트
 
+        self.os_name = platform.system()
+        self.is_raspberry_pi = self.check_raspberry_pi()
+        
+        if self.os_name == "Darwin":  # MacOS
+            self.cap = cv2.VideoCapture(1)
+            self.use_cv = True
+        elif self.is_raspberry_pi:  # Raspberry Pi
+            try:
+                self.picamera2_init()
+            except Exception as e:
+                print("Picamera2 초기화 실패:", e)
+                self.cap = cv2.VideoCapture(0)
+                self.use_cv = True
+        else:  # Ubuntu 등 일반 Linux
+            self.cap = cv2.VideoCapture(0)
+            if not self.cap.isOpened():  # 경고가 뜨거나 카메라가 열리지 않으면 Picamera2 시도
+                print("cv2.VideoCapture(0) 실패, Picamera2 시도")
+            
+                try:
+                    self.picamera2_init()
+                except Exception as e:
+                    print("Picamera2도 실패:", e)
+                    self.use_cv = True
+
+    def picamera2_init(self):
+        from picamera2 import Picamera2
+        self.picam2 = Picamera2()
+        self.picam2.preview_configuration.main.size = (640, 480)
+        self.picam2.preview_configuration.main.format = "RGB888"
+        self.picam2.preview_configuration.controls.FrameRate = 30
+        self.picam2.configure("preview")
+        self.picam2.start()
+        frame = self.picam2.capture_array()
+        if frame is not None:
+            h, w, ch = frame.shape
+            bytes_per_line = ch * w
+            q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            self.label.setPixmap(QPixmap.fromImage(q_img))
+        self.picam2.configure(self.picam2.create_preview_configuration(main={"size": (640, 480)}))
+        self.picam2.start()
+        self.use_cv = False
+
+    def check_raspberry_pi(self):
+        """Raspberry Pi인지 확인하는 함수"""
+        try:
+            with open("/proc/device-tree/model", "r") as f:
+                return "Raspberry Pi" in f.read()
+        except Exception:
+            return False
+
     def update_frame(self):
-        """카메라 프레임을 받아와 QLabel에 표시"""
-        ret, frame = self.cap.read()
-        if ret:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # BGR -> RGB 변환
-            height, width, channel = frame.shape
-            bytes_per_line = channel * width
-            qimg = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
+        if self.use_cv:
+            ret, frame = self.cap.read()
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+                qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.camera_label.setPixmap(QPixmap.fromImage(qimg))
+        else:
+            frame = self.picam2.capture_array()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, ch = frame.shape
+            bytes_per_line = ch * w
+            qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
             self.camera_label.setPixmap(QPixmap.fromImage(qimg))
+
+    def release(self):
+        if self.use_cv:
+            self.cap.release()
 
     def closeClicked(self):
         self.cap.release()  # 카메라 해제
@@ -97,6 +159,8 @@ class userPlantDetailWindow(QMainWindow, form_class):
         self.update_light_intensity(selected_farm_kit_id)
         self.update_plant_type(selected_farm_kit_id)
         self.update_rental_startdate(selected_farm_kit_id)
+
+        # 카메라 서보모터 각도 조절
 
     def clear_labels(self):
         """기존 데이터를 초기화"""
@@ -226,3 +290,4 @@ class userPlantDetailWindow(QMainWindow, form_class):
 
     def closeClicked(self):
         sys.exit()
+
