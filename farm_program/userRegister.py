@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
-from GUI.userPlantRegist import userPlantRegistWindow
+from userPlantRegist import userPlantRegistWindow
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from controller.database.database_manager import DB
 from userPlantDetail import userPlantDetailWindow
