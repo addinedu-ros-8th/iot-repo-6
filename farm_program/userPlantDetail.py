@@ -95,7 +95,7 @@ class userPlantDetailWindow(QMainWindow, form_class):
             h, w, ch = frame.shape
             bytes_per_line = ch * w
             q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-            self.label.setPixmap(QPixmap.fromImage(q_img))
+            self.camera_label.setPixmap(QPixmap.fromImage(q_img))
 
         else:
             frame = self.picam2.capture_array()
