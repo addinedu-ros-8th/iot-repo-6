@@ -45,7 +45,7 @@ int readLightValue() {
 }
 
 // ----- 팬 제어 -----
-#define RELAY_PIN 6  
+#define RELAY_PIN 6
 
 void fanSetup() {
     pinMode(RELAY_PIN, OUTPUT);

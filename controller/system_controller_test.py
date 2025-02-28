@@ -3,8 +3,8 @@ import serial
 from database.database_manager import DB
 
 # 아두이노 시리얼 포트 설정
-kit_arduino = serial.Serial('/dev/ttyACM1', 115200, timeout=1)
-motor_arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+kit_arduino = serial.Serial('/dev/cu.usbmodem1301', 115200, timeout=1)
+motor_arduino = serial.Serial('/dev/cu.usbmodem1201', 9600, timeout=1)
 time.sleep(2)  
 
 # DB 연결
@@ -40,10 +40,9 @@ try:
                 elif actuator == "DOOR_MOTOR":
                     send_command(motor_arduino, "OPEN" if status == "ON" else "CLOSE")
                 elif actuator == "CAMERA_MOTOR":
-                    send_command(motor_arduino, "CAMERA FLAG 3")  # 3번 플래그로 이동
+                    send_command(motor_arduino, f"CAMERA FLAG {status}")  # 3번 플래그로 이동
 
         actuator_states = new_states  # 상태 업데이트
-        time.sleep(1)  # 1초마다 상태 확인
 
 except KeyboardInterrupt:
     print("\n테스트 종료")
