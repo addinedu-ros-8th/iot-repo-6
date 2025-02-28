@@ -3,8 +3,10 @@ import serial
 from database.database_manager import DB
 
 # 아두이노 시리얼 포트 설정
-kit_arduino = serial.Serial('/dev/cu.usbmodem1301', 115200, timeout=1)
-motor_arduino = serial.Serial('/dev/cu.usbmodem1201', 9600, timeout=1)
+# kit_arduino = serial.Serial('/dev/cu.usbmodem1301', 115200, timeout=1)
+# motor_arduino = serial.Serial('/dev/cu.usbmodem1201', 9600, timeout=1)
+kit_arduino = serial.Serial('/dev/ttyACM1', 115200, timeout=1)
+motor_arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)  
 
 # DB 연결
