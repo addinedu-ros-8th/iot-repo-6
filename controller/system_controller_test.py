@@ -20,7 +20,7 @@ actuator_states = {}
 def get_actuator_status():
     """DB에서 테스트 액추에이터 상태를 가져옴"""
     db.execute("SELECT actuator_name, status FROM test_actuators")
-    return {name: status for name, status in db.fetchall()}
+    return {row["actuator_name"]: row["status"] for row in db.fetchall()}
 
 def send_command(device, command):
     """시리얼을 통해 명령어 전송"""
@@ -29,10 +29,13 @@ def send_command(device, command):
 
 try:
     while True:
+        # 🔄 DB 상태 주기적으로 확인
         new_states = get_actuator_status()
 
         for actuator, status in new_states.items():
             if actuator_states.get(actuator) != status:  # 상태 변경 감지
+                print(f"🔄 {actuator} 상태 변경 감지: {status}")
+                
                 if actuator == "WATER_PUMP":
                     send_command(kit_arduino, f"PUMP {status}")
                 elif actuator == "RELAY_FAN":
@@ -42,9 +45,11 @@ try:
                 elif actuator == "DOOR_MOTOR":
                     send_command(motor_arduino, "OPEN" if status == "ON" else "CLOSE")
                 elif actuator == "CAMERA_MOTOR":
-                    send_command(motor_arduino, f"CAMERA FLAG {status}")  # 3번 플래그로 이동
-
-        actuator_states = new_states  # 상태 업데이트
+                    send_command(motor_arduino, f"CAMERA FLAG {status}")  # 카메라 모터 제어
+                
+                actuator_states[actuator] = status  # 변경된 상태 저장
+        
+        time.sleep(1) 
 
 except KeyboardInterrupt:
     print("\n테스트 종료")
