@@ -20,7 +20,7 @@ actuator_states = {}
 def get_actuator_status():
     """DB에서 테스트 액추에이터 상태를 가져옴"""
     db.execute("SELECT actuator_name, status FROM test_actuators")
-    return {row["actuator_name"]: row["status"] for row in db.fetchall()}
+    return {name: status for name, status in db.fetchall()}
 
 def send_command(device, command):
     """시리얼을 통해 명령어 전송"""
