@@ -1,4 +1,4 @@
-# GreenT - Smart Farm
+# GreenT
 
 > *(KDT) ROS2와 인공지능을 활용한 자율주행 로봇 개발자 양성과정 8기* 교육과정 내에서 Internet of Things를 주제로한 과제입니다.
 
